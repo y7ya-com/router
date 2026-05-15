@@ -21,6 +21,7 @@ packages:
   - 'examples/react/*'
   - 'examples/solid/*'
   - 'examples/vue/*'
+  - 'examples/svelte/*'
   - 'examples/react/router-monorepo-react-query/packages/*'
   - 'examples/react/router-monorepo-simple/packages/*'
   - 'examples/react/router-monorepo-simple-lazy/packages/*'

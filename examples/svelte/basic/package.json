@@ -1,0 +1,22 @@
+{
+  "name": "tanstack-router-svelte-example-basic",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port=3000",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "vite"
+  },
+  "dependencies": {
+    "@tanstack/svelte-router": "workspace:*",
+    "redaxios": "^0.5.1",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "svelte-check": "^4.0.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.0"
+  }
+}

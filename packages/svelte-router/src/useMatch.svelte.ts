@@ -1,0 +1,147 @@
+import { getContext } from 'svelte'
+import { useSelector } from '@tanstack/svelte-store'
+import { invariant } from '@tanstack/router-core'
+import { useRouter } from './useRouter'
+import {
+  defaultNearestMatchContext,
+  nearestMatchContextKey,
+  type NearestMatchContextValue,
+} from './matchContext'
+import type {
+  AnyRouter,
+  MakeRouteMatch,
+  MakeRouteMatchUnion,
+  RegisteredRouter,
+  StrictOrFrom,
+  ThrowConstraint,
+  ThrowOrOptional,
+} from '@tanstack/router-core'
+
+export interface UseMatchBaseOptions<
+  TRouter extends AnyRouter,
+  TFrom,
+  TStrict extends boolean,
+  TThrow extends boolean,
+  TSelected,
+> {
+  select?: (
+    match: MakeRouteMatch<TRouter['routeTree'], TFrom, TStrict>,
+  ) => TSelected
+  shouldThrow?: TThrow
+}
+
+export type UseMatchRoute<out TFrom> = <
+  TRouter extends AnyRouter = RegisteredRouter,
+  TSelected = unknown,
+>(
+  opts?: UseMatchBaseOptions<TRouter, TFrom, true, true, TSelected>,
+) => { readonly current: UseMatchResult<TRouter, TFrom, true, TSelected> }
+
+export type UseMatchOptions<
+  TRouter extends AnyRouter,
+  TFrom extends string | undefined,
+  TStrict extends boolean,
+  TThrow extends boolean,
+  TSelected,
+> = StrictOrFrom<TRouter, TFrom, TStrict> &
+  UseMatchBaseOptions<TRouter, TFrom, TStrict, TThrow, TSelected>
+
+export type UseMatchResult<
+  TRouter extends AnyRouter,
+  TFrom,
+  TStrict extends boolean,
+  TSelected,
+> = unknown extends TSelected
+  ? TStrict extends true
+    ? MakeRouteMatch<TRouter['routeTree'], TFrom, TStrict>
+    : MakeRouteMatchUnion<TRouter>
+  : TSelected
+
+export function useMatch<
+  TRouter extends AnyRouter = RegisteredRouter,
+  const TFrom extends string | undefined = undefined,
+  TStrict extends boolean = true,
+  TThrow extends boolean = true,
+  TSelected = unknown,
+>(
+  opts: UseMatchOptions<
+    TRouter,
+    TFrom,
+    TStrict,
+    ThrowConstraint<TStrict, TThrow>,
+    TSelected
+  >,
+): {
+  readonly current: ThrowOrOptional<
+    UseMatchResult<TRouter, TFrom, TStrict, TSelected>,
+    TThrow
+  >
+} {
+  const safeOpts = (opts ?? {}) as typeof opts
+  const router = useRouter<TRouter>()
+  const nearestMatch =
+    safeOpts.from
+      ? undefined
+      : ((getContext(nearestMatchContextKey) as
+          | NearestMatchContextValue
+          | undefined) ?? defaultNearestMatchContext)
+
+  if (safeOpts.from) {
+    const store = router.stores.getRouteMatchStore(safeOpts.from as string)
+    const sel = useSelector(store, (m) => {
+      if (m === undefined) {
+        if (
+          !router.stores.pendingRouteIds.get()[safeOpts.from as string] &&
+          !router.stores.isTransitioning.get() &&
+          (safeOpts.shouldThrow ?? true)
+        ) {
+          if (process.env.NODE_ENV !== 'production') {
+            throw new Error(
+              `Invariant failed: Could not find an active match from "${safeOpts.from}"`,
+            )
+          }
+          invariant()
+        }
+        return undefined
+      }
+      return (safeOpts.select ? safeOpts.select(m as any) : m) as TSelected | undefined
+    })
+    return sel as { readonly current: any }
+  }
+
+  // From-context case: read via nearestMatch.match() which is reactive.
+  // Compute initial value synchronously so consumers reading `.current` on
+  // first render see the right shape (avoids `.current.x` crashes before
+  // the effect first fires).
+  const initialMatch = nearestMatch!.match()
+  let value = $state<unknown>(
+    initialMatch !== undefined
+      ? safeOpts.select
+        ? safeOpts.select(initialMatch as any)
+        : initialMatch
+      : undefined,
+  )
+  $effect(() => {
+    const m = nearestMatch!.match()
+    if (m === undefined) {
+      if (
+        !nearestMatch!.hasPending() &&
+        !router.stores.isTransitioning.get() &&
+        (safeOpts.shouldThrow ?? true)
+      ) {
+        if (process.env.NODE_ENV !== 'production') {
+          throw new Error('Invariant failed: Could not find a nearest match!')
+        }
+        invariant()
+      }
+      value = undefined
+      return
+    }
+    value = safeOpts.select ? safeOpts.select(m as any) : m
+  })
+  return {
+    get current() {
+      return value as any
+    },
+  }
+}

@@ -1,0 +1,10 @@
+node_modules
+dist
+.svelte-kit
+coverage
+
+# Auto-generated compiled-tests output — regenerated on every `pnpm run
+# test:unit` from `packages/solid-router/tests/*.test.tsx` via the
+# `pretest:unit` hook. Match `tests/compiled/` at any depth so leftover
+# runs in nested workspaces (scripts/port-tests, etc.) can't sneak in.
+**/tests/compiled/
