@@ -24,12 +24,14 @@ import {
   createRouteNodesByTo,
   createTokenRegex,
   determineNodePath,
+  extractSvelteModuleScript,
   findParent,
   format,
   getImportForRouteNode,
   getResolvedRouteNodeVariableName,
   hasParentRoute,
   isSegmentPathless,
+  isSingleExportRouteFile,
   mergeImportDeclarations,
   multiSortBy,
   removeExt,
@@ -638,7 +640,22 @@ export class Generator {
         virtualRouteNodes.push(
           `const ${node.variableName}RouteImport = createFileRoute('${node.routePath}')()`,
         )
+      } else if (
+        isSingleExportRouteFile(node.filePath) &&
+        !node.hasNamedRouteExport
+      ) {
+        // SFC-style route files (.vue/.svelte) don't expose a named `Route`
+        // export — they default-export the component. Synthesize the base
+        // Route inline, then `.update({ component: lazyRouteComponent(...) })`
+        // below wires the component lazily from the file's default export.
+        virtualRouteNodes.push(
+          `const ${node.variableName}RouteImport = createFileRoute('${node.routePath}')()`,
+        )
       } else {
+        // Either a TS(X) file with a named `Route` export, or a `.svelte` file
+        // whose `<script module>` block exports `Route` (Svelte's escape hatch
+        // for colocating route options with the component — see the SFC branch
+        // in `handleNode`).
         routeImports.push(
           getImportForRouteNode(
             node,
@@ -650,6 +667,16 @@ export class Generator {
       }
     }
 
+    // If the root route file is an SFC (`__root.vue` / `__root.svelte`),
+    // synthesise `const rootRouteImport = createRootRoute()` inline; the
+    // component is wired in below via `.update({ component: ... })`. We
+    // need this before `imports` collection so the `createRootRoute`
+    // framework import is included.
+    const rootIsSfc = isSingleExportRouteFile(rootRouteNode.filePath)
+    if (rootIsSfc) {
+      virtualRouteNodes.unshift(`const rootRouteImport = createRootRoute()`)
+    }
+
     const imports: Array<ImportDeclaration> = []
     if (virtualRouteNodes.length > 0) {
       imports.push({
@@ -657,8 +684,18 @@ export class Generator {
         source: this.targetTemplate.fullPkg,
       })
     }
-    // Add lazyRouteComponent import if there are component pieces
-    let hasComponentPieces = false
+    if (rootIsSfc) {
+      imports.push({
+        specifiers: [{ imported: 'createRootRoute' }],
+        source: this.targetTemplate.fullPkg,
+      })
+    }
+    // Add lazyRouteComponent import if there are component pieces. SFC route
+    // files (.vue/.svelte) act as their own component piece via the
+    // `componentNode` synth below; an SFC root counts too.
+    let hasComponentPieces =
+      rootIsSfc ||
+      sortedRouteNodes.some((n) => isSingleExportRouteFile(n.filePath))
     let hasLoaderPieces = false
     for (const node of sortedRouteNodes) {
       const pieces = acc.routePiecesByPath[node.routePath!]
@@ -698,7 +735,12 @@ export class Generator {
     const createUpdateRoutes = sortedRouteNodes.map((node) => {
       const pieces = acc.routePiecesByPath[node.routePath!]
       const loaderNode = pieces?.loader
-      const componentNode = pieces?.component
+      // For SFC route files (.vue/.svelte), the route file IS the component.
+      // Synthesise a `componentNode` pointing at the same file so the
+      // `.update({ component: lazyRouteComponent(...) })` clause below wires
+      // the default export as the route's component.
+      const isSfcNode = isSingleExportRouteFile(node.filePath)
+      const componentNode = pieces?.component ?? (isSfcNode ? node : undefined)
       const errorComponentNode = pieces?.errorComponent
       const notFoundComponentNode = pieces?.notFoundComponent
       const pendingComponentNode = pieces?.pendingComponent
@@ -744,12 +786,31 @@ export class Generator {
                 )
                   .filter((d) => d[1])
                   .map((d) => {
-                    // For .vue files, use 'default' as the export name since Vue SFCs export default
-                    const isVueFile = d[1]!.filePath.endsWith('.vue')
-                    const exportName = isVueFile ? 'default' : d[0]
-                    // Keep .vue extension for Vue files since Vite requires it
+                    // SFC-style files (.vue/.svelte) default-export the component
+                    // and don't expose a named `Route`/`component` export, so we
+                    // import as `'default'` and keep the file extension so the
+                    // Vite/Svelte plugin can resolve it.
+                    const isSfc = isSingleExportRouteFile(d[1]!.filePath)
+
+                    // Colocated case: the `.svelte` file's `<script module>`
+                    // already supplied a Route export, so we statically imported
+                    // its default above (`<variableName>RouteComponent`). Use
+                    // that sync reference instead of `lazyRouteComponent` —
+                    // wrapping a same-file static import in a dynamic import
+                    // produces a bundler warning AND can't actually split the
+                    // chunk anyway.
+                    if (
+                      d[0] === 'component' &&
+                      d[1] === node &&
+                      node.hasNamedRouteExport &&
+                      node.filePath.endsWith('.svelte')
+                    ) {
+                      return `component: ${node.variableName}RouteComponent`
+                    }
+
+                    const exportName = isSfc ? 'default' : d[0]
                     const importPath = replaceBackslash(
-                      isVueFile
+                      isSfc
                         ? path.relative(
                             path.dirname(config.generatedRouteTree),
                             path.resolve(
@@ -777,12 +838,14 @@ export class Generator {
             : '',
           lazyComponentNode
             ? (() => {
-                // For .vue files, use 'default' export since Vue SFCs export default
-                const isVueFile = lazyComponentNode.filePath.endsWith('.vue')
-                const exportAccessor = isVueFile ? 'd.default' : 'd.Route'
-                // Keep .vue extension for Vue files since Vite requires it
+                // SFC-style lazy route files default-export the component;
+                // TSX/TS files export `Route`.
+                const isSfc = isSingleExportRouteFile(
+                  lazyComponentNode.filePath,
+                )
+                const exportAccessor = isSfc ? 'd.default' : 'd.Route'
                 const importPath = replaceBackslash(
-                  isVueFile
+                  isSfc
                     ? path.relative(
                         path.dirname(config.generatedRouteTree),
                         path.resolve(
@@ -808,10 +871,14 @@ export class Generator {
       ].join('\n\n')
     })
 
-    // Generate update for root route if it has component pieces
+    // Generate update for root route if it has component pieces. If the
+    // root route file itself is an SFC (`__root.vue` / `__root.svelte`),
+    // promote it to the component piece so its default export is wired in.
+    // `rootIsSfc` was computed earlier (next to the virtualRouteNodes setup).
     const rootRoutePath = `/${rootPathId}`
     const rootPieces = acc.routePiecesByPath[rootRoutePath]
-    const rootComponentNode = rootPieces?.component
+    const rootComponentNode =
+      rootPieces?.component ?? (rootIsSfc ? rootRouteNode : undefined)
     const rootErrorComponentNode = rootPieces?.errorComponent
     const rootNotFoundComponentNode = rootPieces?.notFoundComponent
     const rootPendingComponentNode = rootPieces?.pendingComponent
@@ -839,12 +906,11 @@ export class Generator {
               )
                 .filter((d) => d[1])
                 .map((d) => {
-                  // For .vue files, use 'default' as the export name since Vue SFCs export default
-                  const isVueFile = d[1]!.filePath.endsWith('.vue')
-                  const exportName = isVueFile ? 'default' : d[0]
-                  // Keep .vue extension for Vue files since Vite requires it
+                  // SFC-style files (.vue/.svelte) default-export the component.
+                  const isSfc = isSingleExportRouteFile(d[1]!.filePath)
+                  const exportName = isSfc ? 'default' : d[0]
                   const importPath = replaceBackslash(
-                    isVueFile
+                    isSfc
                       ? path.relative(
                           path.dirname(config.generatedRouteTree),
                           path.resolve(config.routesDirectory, d[1]!.filePath),
@@ -963,13 +1029,17 @@ ${acc.routeTree.map((child) => `${child.variableName}Route: typeof ${getResolved
 
     const importStatements = mergedImports.map(buildImportString)
 
-    const rootRouteImport = getImportForRouteNode(
-      rootRouteNode,
-      config,
-      this.generatedRouteTreePath,
-      this.root,
-    )
-    routeImports.unshift(rootRouteImport)
+    // Only emit a named `Route` import for non-SFC root files; SFC roots
+    // are synthesised inline (see the `rootIsSfc` block earlier).
+    if (!rootIsSfc) {
+      const rootRouteImport = getImportForRouteNode(
+        rootRouteNode,
+        config,
+        this.generatedRouteTreePath,
+        this.root,
+      )
+      routeImports.unshift(rootRouteImport)
+    }
 
     let footer: Array<string> = []
     if (config.routeTreeFileFooter) {
@@ -1095,11 +1165,21 @@ ${acc.routeTree.map((child) => `${child.variableName}Route: typeof ${getResolved
       }
     }
 
-    // Check if this is a Vue component file
-    // Vue SFC files (.vue) don't need transformation as they can't have a Route export
-    const isVueFile = node.filePath.endsWith('.vue')
+    // SFC-style files (.vue, .svelte) default-export the component and don't
+    // expose a top-level `Route` named export, so skip the AST transform that
+    // looks for one.
+    //
+    // Svelte-only escape hatch: a `.svelte` file CAN expose a `Route` export
+    // from its `<script module>` block (Svelte 5 module-script primitive
+    // compiles to a real ES module export). When present, we run the same
+    // `transform()` on the module-script content alone and splice the result
+    // back into the file — letting users colocate `loader` / `beforeLoad` /
+    // `errorComponent` / etc. alongside the component, the same way React/Solid
+    // adapters do in their `.tsx` files.
+    const isSfc = isSingleExportRouteFile(node.filePath)
+    const isSvelteSfc = node.filePath.endsWith('.svelte')
 
-    if (!isVueFile) {
+    if (!isSfc) {
       // transform the file
       const transformResult = await transform({
         source: updatedCacheEntry.fileContent,
@@ -1139,6 +1219,41 @@ ${acc.routeTree.map((child) => `${child.variableName}Route: typeof ${getResolved
       if (transformResult.result === 'modified') {
         updatedCacheEntry.fileContent = transformResult.output
         shouldWriteRouteFile = true
+      }
+    } else if (isSvelteSfc) {
+      const moduleScript = extractSvelteModuleScript(
+        updatedCacheEntry.fileContent,
+      )
+      if (moduleScript) {
+        const transformResult = await transform({
+          source: moduleScript.content,
+          filename: node.fullPath,
+          ctx: {
+            target: this.config.target,
+            routeId: escapedRoutePath,
+            lazy: node._fsRouteType === 'lazy',
+          },
+          node,
+        })
+
+        if (transformResult.result === 'error') {
+          throw new Error(
+            `Error transforming <script module> in ${node.fullPath}: ${transformResult.error}`,
+          )
+        }
+        // `no-route-export` is fine — the module script exists but doesn't
+        // export Route (maybe it has unrelated module-level helpers). Fall
+        // through to the bare-SFC synthesis path.
+        if (transformResult.result !== 'no-route-export') {
+          node.hasNamedRouteExport = true
+          if (transformResult.result === 'modified') {
+            updatedCacheEntry.fileContent =
+              updatedCacheEntry.fileContent.slice(0, moduleScript.contentStart) +
+              transformResult.output +
+              updatedCacheEntry.fileContent.slice(moduleScript.contentEnd)
+            shouldWriteRouteFile = true
+          }
+        }
       }
     }
 

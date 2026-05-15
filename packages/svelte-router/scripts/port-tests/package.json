@@ -1,0 +1,18 @@
+{
+  "name": "@tanstack/svelte-router-port-tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One-time test corpus port utility: translates React/Solid TanStack Router tests to Svelte equivalents",
+  "bin": {
+    "port-tests": "./src/cli.ts"
+  },
+  "scripts": {
+    "port": "tsx ./src/cli.ts",
+    "test": "tsx ./src/cli.ts --dry-run"
+  },
+  "dependencies": {
+    "ts-morph": "^24.0.0",
+    "tsx": "^4.19.2"
+  }
+}

@@ -33,7 +33,8 @@ export interface TokenRegexBundle {
   routeTokenSegmentRegex: RegExp
 }
 
-const disallowedRouteGroupConfiguration = /\(([^)]+)\).(ts|js|tsx|jsx|vue)/
+const disallowedRouteGroupConfiguration =
+  /\(([^)]+)\).(ts|js|tsx|jsx|vue|svelte)/
 
 const virtualConfigFileRegExp = /__virtual\.[mc]?[jt]s$/
 export function isVirtualConfigFile(fileName: string): boolean {
@@ -170,7 +171,7 @@ export async function getRouteNodes(
 
         if (dirent.isDirectory()) {
           await recurse(relativePath)
-        } else if (fullPath.match(/\.(tsx|ts|jsx|js|vue)$/)) {
+        } else if (fullPath.match(/\.(tsx|ts|jsx|js|vue|svelte)$/)) {
           const filePath = replaceBackslash(path.join(dir, dirent.name))
           const filePathNoExt = removeExt(filePath)
           const {

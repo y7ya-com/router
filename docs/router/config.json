@@ -46,6 +46,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -94,6 +98,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -136,6 +144,10 @@
         },
         {
           "label": "solid",
+          "children": []
+        },
+        {
+          "label": "svelte",
           "children": []
         }
       ]
@@ -268,6 +280,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -291,6 +307,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -309,6 +329,10 @@
         },
         {
           "label": "solid",
+          "children": []
+        },
+        {
+          "label": "svelte",
           "children": []
         }
       ]
@@ -521,6 +545,15 @@
             {
               "label": "Monorepo with Solid Query",
               "to": "framework/solid/examples/router-monorepo-solid-query"
+            }
+          ]
+        },
+        {
+          "label": "svelte",
+          "children": [
+            {
+              "label": "Basic (code-based)",
+              "to": "framework/svelte/examples/basic"
             }
           ]
         }

@@ -19,6 +19,13 @@ export type RouteNode = {
   parent?: RouteNode
   createFileRouteProps?: Set<string>
   /**
+   * Set when an SFC route file (.svelte) exposes a `Route` export from its
+   * `<script module>` block. In that case the generator imports the Route
+   * from the SFC instead of synthesising `createFileRoute(path)()` inline,
+   * so user-supplied `loader` / `beforeLoad` / etc. flow through.
+   */
+  hasNamedRouteExport?: boolean
+  /**
    * For virtual routes: the routePath of the explicit parent from virtual config.
    * Used to prevent auto-nesting siblings based on path prefix matching (#5822, #5431).
    * Falls back to path-based inference if the explicit parent is not found
