@@ -1,0 +1,77 @@
+{
+  "name": "@tanstack/svelte-router-ssr-query",
+  "version": "0.0.1-experimental",
+  "description": "TanStack Query integration for TanStack Router (Svelte 5) — experimental community port; not an official TanStack release. API mirrors @tanstack/solid-router-ssr-query.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/y7ya-com/router.git",
+    "directory": "packages/svelte-router-ssr-query"
+  },
+  "homepage": "https://github.com/y7ya-com/router/tree/feat/svelte-router/packages/svelte-router-ssr-query",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/tannerlinsley"
+  },
+  "keywords": [
+    "tanstack",
+    "tanstack-router",
+    "tanstack-query",
+    "svelte",
+    "svelte5",
+    "router",
+    "routing",
+    "ssr",
+    "query",
+    "community-port"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist && rimraf ./coverage",
+    "test:eslint": "eslint",
+    "test:types": "svelte-check --tsconfig ./tsconfig.json",
+    "test:unit": "vitest",
+    "build": "svelte-package --input ./src --output ./dist"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "@tanstack/router-ssr-query-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.3.7",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "@tanstack/svelte-query": "^6.1.34",
+    "@tanstack/svelte-router": "workspace:*",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/svelte": "^5.2.4",
+    "eslint-plugin-svelte": "^2.46.0",
+    "jsdom": "^25.0.1",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0",
+    "vite": "*",
+    "vitest": "^4.1.4"
+  },
+  "peerDependencies": {
+    "@tanstack/query-core": ">=5.90.0",
+    "@tanstack/svelte-query": ">=6.0.0",
+    "@tanstack/svelte-router": ">=0.0.0-experimental",
+    "svelte": "^5.0.0"
+  }
+}
