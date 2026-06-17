@@ -27,7 +27,9 @@
   // Reads the cache the loader just populated — no extra fetch.
   const postsQuery = createQuery(() => postsQueryOptions())
 
-  const filter = $derived(search.current.filter ?? '')
+  // `search.current` is briefly `undefined` while this layout unmounts (Svelte
+  // re-runs deriveds during the flush before teardown), so read it defensively.
+  const filter = $derived(search.current?.filter ?? '')
   const filtered = $derived(
     (postsQuery.data ?? []).filter((p) =>
       filter ? p.title.toLowerCase().includes(filter.toLowerCase()) : true,
