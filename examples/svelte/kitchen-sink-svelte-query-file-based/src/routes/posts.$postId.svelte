@@ -18,8 +18,12 @@
   // above and are in scope here too.
   const params = Route.useParams()
 
+  // `params.current` is briefly `undefined` while this route unmounts (Svelte
+  // re-runs deriveds during the flush before teardown), so read it defensively.
+  const postId = $derived(params.current?.postId ?? '')
+
   // Reads the same cache the loader populated — no refetch on navigation.
-  const postQuery = createQuery(() => postQueryOptions(params.current.postId))
+  const postQuery = createQuery(() => postQueryOptions(postId))
 
   // Mutation → invalidate → the post query refetches (network counter ticks up).
   const like = createMutation(() => ({
@@ -28,9 +32,7 @@
       return true
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: ['posts', params.current.postId],
-      }),
+      queryClient.invalidateQueries({ queryKey: ['posts', postId] }),
   }))
 </script>
 
@@ -41,7 +43,7 @@
 {:else if postQuery.data}
   <article>
     <h1>{postQuery.data.title}</h1>
-    <p class="byline">Post #{params.current.postId}</p>
+    <p class="byline">Post #{postId}</p>
     <p>{postQuery.data.body}</p>
     <button onclick={() => like.mutate()} disabled={like.isPending}>
       {like.isPending ? 'Liking…' : '♥ Like (invalidate + refetch)'}
