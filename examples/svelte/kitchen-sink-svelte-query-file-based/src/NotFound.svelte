@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { Link, useRouter } from '@tanstack/svelte-router'
+  import { Link } from '@tanstack/svelte-router'
+  import type { NotFoundRouteProps } from '@tanstack/svelte-router'
 
-  const router = useRouter()
+  // Declaring the route-component props keeps this assignable to
+  // `defaultNotFoundComponent`'s type, and `routeId` tells us where it fired.
+  let { routeId }: NotFoundRouteProps = $props()
 </script>
 
 <div class="page">
   <h1>404 · Not found</h1>
   <p>
-    No route (or post) matched
-    <code>{router.state.location.pathname}</code>. A loader can trigger this by
+    Nothing matched under <code>{routeId}</code>. A loader can trigger this by
     throwing <code>notFound()</code> — that's how <code>/posts/9999</code> lands
     here while keeping the Posts layout mounted (<code>notFoundMode: 'fuzzy'</code>).
   </p>
