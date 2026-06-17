@@ -11,14 +11,21 @@
 # Lines starting with `#` are comments; blank lines are ignored.
 
 # --- Scripts (3) -----------------------------------------------------------
-# Reason: byte-exact `container.innerHTML` comparison vs Svelte 5's anchor
-# comments (`<!---->`) at every component boundary. Solid's reference-based
-# renderer emits none; Svelte 5's anchor-based scheduler always emits some.
-# Making `<Scripts>` bypass Svelte's render is a fundamental rewrite for a
-# correctness-by-byte-match test that doesn't reflect real production usage.
+# Reason (first two): byte-exact `container.innerHTML` comparison vs Svelte 5's
+# anchor comments (`<!---->`) at every component boundary. Solid's
+# reference-based renderer emits none; Svelte 5's anchor-based scheduler always
+# emits some. Making `<Scripts>` bypass Svelte's render is a fundamental rewrite
+# for a correctness-by-byte-match test that doesn't reflect real production use.
+#
+# Reason (assetCrossOrigin): the manifest `crossOrigin` (camelCase) prop spread
+# onto `<link {...attrs} />` is not reflected to the DOM `crossorigin`
+# attribute by Svelte the way Solid's JSX does. Framework attribute-casing
+# difference, not a data bug — `useTags` already computes the right value.
+# (Renamed from "manifest assets" → "manifest stylesheets" in router-core
+# 1.171.13's manifest-model refactor.)
 Scripts::excludes `undefined` script values
 Scripts::keeps manifest stylesheet links mounted when preload counts change
-Scripts::applies assetCrossOrigin to manifest assets and preloads
+Scripts::applies assetCrossOrigin to manifest stylesheets and preloads
 
 # --- store-updates-during-navigation (8) ------------------------------------
 # Reason: regression-guard tests asserting an EXACT integer count of store
@@ -48,3 +55,12 @@ store-updates-during-navigation::preload a preloaded route w/ async loader
 # globally deferring `useSelector` slice writes via `queueMicrotask`, which
 # would regress dozens of tests that expect synchronous post-click DOM updates.
 useNavigate::when navigating from /invoices to ./invoiceId and the current route is /posts/$postId/details
+
+# --- renderRouterToStream (2) ----------------------------------------------
+# Reason: these exercise the SSR streaming bot-abort path. `renderRouterToStream`
+# is a documented v1 stub (client-only — see README "Known limitations"), so it
+# returns no streamed Response and the test's `drainBody` reads `.body` of
+# undefined. Tracked with the rest of the SSR-streaming work, not a regression.
+# New in router-core 1.171.13.
+renderRouterToStream::request abort during bot wait returns and terminates response stream
+renderRouterToStream::pipeTo rejection aborts writer and terminates response stream
