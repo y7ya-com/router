@@ -1,4 +1,4 @@
-<div class="empty">← Select a post.</div>
+<div class="empty">← Select a post. Hover one first — it preloads, so the click is instant.</div>
 
 <style>
   .empty {
