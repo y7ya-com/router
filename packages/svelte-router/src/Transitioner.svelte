@@ -1,10 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte'
-  import {
-    getLocationChangeInfo,
-    handleHashScroll,
-    trimPathRight,
-  } from '@tanstack/router-core'
+  import { getLocationChangeInfo, trimPathRight } from '@tanstack/router-core'
   import { isServer } from '@tanstack/router-core/isServer'
   import { useSelector, batch } from '@tanstack/svelte-store'
   import { useRouter } from './useRouter'
@@ -111,10 +107,6 @@
         router.stores.status.set('idle')
         router.stores.resolvedLocation.set(router.stores.location.get())
       })
-
-      if (changeInfo.hrefChanged) {
-        handleHashScroll(router)
-      }
     }
     prevIsAnyPending = currentIsAnyPending
     prevIsLoading = isLoading
