@@ -1,6 +1,6 @@
 <script lang="ts" generics="TRouter extends AnyRouter = RegisteredRouter">
   import { setContext } from 'svelte'
-  import type { Component } from 'svelte'
+  import type { Component, Snippet } from 'svelte'
   import type {
     AnyRouter,
     RegisteredRouter,
@@ -29,6 +29,12 @@
   })
 
   setContext(routerContextKey, router)
+
+  // `router.options.Wrap` is how integrations (e.g. ssr-query) inject a
+  // provider around the whole route tree — mirrors react/solid-router. The
+  // `Wrap` prop is composed outside it.
+  const OptionsWrap = (router.options as { Wrap?: Component<{ children: Snippet }> })
+    .Wrap
 </script>
 
 {#snippet inner()}
@@ -44,8 +50,16 @@
   {/if}
 {/snippet}
 
+{#snippet wrapped()}
+  {#if OptionsWrap}
+    <OptionsWrap>{@render inner()}</OptionsWrap>
+  {:else}
+    {@render inner()}
+  {/if}
+{/snippet}
+
 {#if Wrap}
-  <Wrap>{@render inner()}</Wrap>
+  <Wrap>{@render wrapped()}</Wrap>
 {:else}
-  {@render inner()}
+  {@render wrapped()}
 {/if}
