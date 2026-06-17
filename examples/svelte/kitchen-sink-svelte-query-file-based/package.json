@@ -1,0 +1,24 @@
+{
+  "name": "tanstack-router-svelte-example-kitchen-sink-svelte-query-file-based",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port=3001",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "vite"
+  },
+  "dependencies": {
+    "@tanstack/svelte-query": "^6.1.34",
+    "@tanstack/svelte-router": "workspace:*",
+    "@tanstack/svelte-router-ssr-query": "workspace:*",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@tanstack/router-plugin": "workspace:*",
+    "svelte-check": "^4.0.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.0"
+  }
+}
