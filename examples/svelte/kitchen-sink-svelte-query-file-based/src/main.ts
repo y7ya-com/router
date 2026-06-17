@@ -9,6 +9,9 @@ import { queryClient } from './query-client'
 
 const router = createRouter({
   routeTree,
+  // Hovering/focusing a <Link> prefetches its loader — which warms the query
+  // cache here — so the click is instant with no pending flash.
+  defaultPreload: 'intent',
   scrollRestoration: true,
   defaultNotFoundComponent: NotFound,
   notFoundMode: 'fuzzy',

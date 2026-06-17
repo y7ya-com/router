@@ -12,7 +12,8 @@
     <li>📁 <strong>File-based routing</strong> — routes generated from <code>src/routes</code>.</li>
     <li>🧭 <strong>Nested layouts</strong> with <code>&lt;Outlet /&gt;</code> and type-safe <code>&lt;Link&gt;</code>.</li>
     <li>⚡ <strong>Loader + Query prefetch</strong> — loaders call <code>ensureQueryData</code>; components read the cache with <code>createQuery</code>, so there's no refetch.</li>
-    <li>🪝 <strong>Shared cache</strong> — navigate away and back; the <em>network fetches</em> counter doesn't move, because the loader and <code>createQuery</code> share one cache.</li>
+    <li>🪝 <strong>Intent preloading</strong> — hover a post link and its query is fetched before you click, so navigation is instant. Watch the <em>network fetches</em> counter.</li>
+    <li>♻️ <strong>Shared cache</strong> — navigate away and back; the counter doesn't move, because the loader and <code>createQuery</code> share one cache.</li>
     <li>🔎 <strong>Search-param state</strong> — the Posts filter lives in the URL.</li>
     <li>✍️ <strong>Mutations</strong> — "like" a post and the query cache invalidates.</li>
     <li>🚧 <strong>Errors & not-found</strong> — <code>/posts/9999</code> throws <code>notFound()</code> from a loader.</li>
