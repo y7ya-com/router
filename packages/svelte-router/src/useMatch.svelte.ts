@@ -88,23 +88,50 @@ export function useMatch<
 
   if (safeOpts.from) {
     const store = router.stores.getRouteMatchStore(safeOpts.from as string)
+
+    // Phase 1 — synchronous check at hook-call time is the ONLY throw site
+    // (mirrors solid-router). The reactive selector below must never throw,
+    // otherwise a transiently-undefined match during a navigation / view
+    // transition would crash instead of resolving to the next match.
+    const initial = store.get()
+    if (
+      initial === undefined &&
+      !router.stores.pendingRouteIds.get()[safeOpts.from as string] &&
+      !router.stores.isTransitioning.get() &&
+      (safeOpts.shouldThrow ?? true)
+    ) {
+      if (process.env.NODE_ENV !== 'production') {
+        throw new Error(
+          `Invariant failed: Could not find an active match from "${safeOpts.from}"`,
+        )
+      }
+      invariant()
+    }
+
+    // Phase 2 — reactive selector. Never throws; keeps the previous value while
+    // the route is pending or the router is transitioning, else `undefined`.
+    let prev =
+      initial !== undefined
+        ? ((safeOpts.select ? safeOpts.select(initial as any) : initial) as
+            | TSelected
+            | undefined)
+        : undefined
     const sel = useSelector(store, (m) => {
       if (m === undefined) {
+        const hasPendingMatch =
+          !!router.stores.pendingRouteIds.get()[safeOpts.from as string]
         if (
-          !router.stores.pendingRouteIds.get()[safeOpts.from as string] &&
-          !router.stores.isTransitioning.get() &&
-          (safeOpts.shouldThrow ?? true)
+          prev !== undefined &&
+          (hasPendingMatch || router.stores.isTransitioning.get())
         ) {
-          if (process.env.NODE_ENV !== 'production') {
-            throw new Error(
-              `Invariant failed: Could not find an active match from "${safeOpts.from}"`,
-            )
-          }
-          invariant()
+          return prev
         }
         return undefined
       }
-      return (safeOpts.select ? safeOpts.select(m as any) : m) as TSelected | undefined
+      prev = (safeOpts.select ? safeOpts.select(m as any) : m) as
+        | TSelected
+        | undefined
+      return prev
     })
     return sel as { readonly current: any }
   }
@@ -114,6 +141,21 @@ export function useMatch<
   // first render see the right shape (avoids `.current.x` crashes before
   // the effect first fires).
   const initialMatch = nearestMatch!.match()
+
+  // Phase 1 — synchronous throw check (the only throw site; see the `from`
+  // branch above for why the reactive effect must not throw).
+  if (
+    initialMatch === undefined &&
+    !nearestMatch!.hasPending() &&
+    !router.stores.isTransitioning.get() &&
+    (safeOpts.shouldThrow ?? true)
+  ) {
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error('Invariant failed: Could not find a nearest match!')
+    }
+    invariant()
+  }
+
   let value = $state<unknown>(
     initialMatch !== undefined
       ? safeOpts.select
@@ -121,18 +163,16 @@ export function useMatch<
         : initialMatch
       : undefined,
   )
+  // Phase 2 — reactive effect. Never throws; keeps the previous value while the
+  // nearest match is pending or the router is transitioning, else `undefined`.
   $effect(() => {
     const m = nearestMatch!.match()
     if (m === undefined) {
       if (
-        !nearestMatch!.hasPending() &&
-        !router.stores.isTransitioning.get() &&
-        (safeOpts.shouldThrow ?? true)
+        value !== undefined &&
+        (nearestMatch!.hasPending() || router.stores.isTransitioning.get())
       ) {
-        if (process.env.NODE_ENV !== 'production') {
-          throw new Error('Invariant failed: Could not find a nearest match!')
-        }
-        invariant()
+        return
       }
       value = undefined
       return
