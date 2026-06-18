@@ -16,10 +16,13 @@
 </script>
 
 <!--
-  TODO(svelte-port): full HTML scaffold matching solid-router's NoHydration / Hydration
-  wrappers. v1 emits HeadContent + RouterProvider; Svelte's renderRouterToString prepends
-  the doctype and HTML structure.
+  Only the app (RouterProvider) goes inside `#app`; that's the single element the
+  client hydrates. HeadContent renders into `<svelte:head>` (the document head)
+  and Scripts (dehydration + asset scripts) sit *after* `#app` — both outside the
+  hydration boundary, so the server/client trees match. This mirrors how
+  solid-router uses `<NoHydration>` around the scaffold + `<Hydration>` around the
+  app.
 -->
 <HeadContent />
-<RouterProvider {router} />
+<div id="app"><RouterProvider {router} /></div>
 <Scripts />
