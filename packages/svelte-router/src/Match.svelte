@@ -20,7 +20,12 @@
 
   // matchStores is a Map (non-reactive), but each entry is a reactive atom.
   // matchId is a prop and can change — we subscribe imperatively to handle source changes.
-  let match = $state<AnyRouteMatch | undefined>(undefined)
+  // Seed synchronously from the store so the match is present on the very first
+  // render — including server render, where `$effect` never runs (without this,
+  // `match` would stay `undefined` and nothing would server-render).
+  let match = $state<AnyRouteMatch | undefined>(
+    router.stores.matchStores.get(matchId)?.get(),
+  )
   $effect(() => {
     const store = router.stores.matchStores.get(matchId)
     if (!store) {
