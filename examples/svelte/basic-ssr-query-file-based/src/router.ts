@@ -8,7 +8,11 @@ export function createRouter() {
   // must get its own cache (no cross-request leakage). On the client this runs
   // once. The integration dehydrates this cache on the server and hydrates it
   // on the client.
-  const queryClient = new QueryClient()
+  // staleTime keeps a hydrated-fresh query from immediately background-refetching
+  // on the client — so if the dehydrated cache transferred, there's zero fetch.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { staleTime: 60_000 } },
+  })
 
   const router = createSvelteRouter({
     routeTree,
