@@ -2,11 +2,21 @@
   import { Link, Outlet } from '@tanstack/svelte-router'
 </script>
 
+<!--
+  No <HeadContent /> here: the SSR scaffold (RouterServer / RouterClient) already
+  renders it into the document <head>. Each route just declares its own `head`
+  (title/meta/links) in route options — view source on any page to see the
+  per-route <title>/<meta> in the server HTML. (Adding it here is harmless too:
+  the adapter guards against a duplicate instance.)
+-->
+
 <nav>
   <Link to="/" activeProps={{ class: 'active' }} activeOptions={{ exact: true }}>
     Home
   </Link>
   <Link to="/posts" activeProps={{ class: 'active' }}>Posts</Link>
+  <Link to="/redirect" activeProps={{ class: 'active' }}>Redirect</Link>
+  <Link to="/boom" activeProps={{ class: 'active' }}>Boom</Link>
 </nav>
 <hr />
 <Outlet />
