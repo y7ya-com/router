@@ -28,6 +28,23 @@ export async function render({
     renderRouterToString({ responseHeaders, router }),
   )
 
+  // Forward the router's response headers to express. This carries the
+  // `Location` header for server-side redirects (a loader throwing
+  // `redirect()`) — core builds it via `getRequestHeaders`/`resolveRedirect` —
+  // as well as any per-route `headers`. Without this, a 307/redirect goes out
+  // with no target. `content-length` is skipped because the HTML is rewritten
+  // below (vite head + client entry), so express must recompute it on `end`.
+  for (const [key, value] of response.headers) {
+    if (key.toLowerCase() === 'content-length') continue
+    res.setHeader(key, value)
+  }
+
+  // A redirect has no HTML body to render — emit the status + headers and stop.
+  if (response.status >= 300 && response.status < 400) {
+    res.status(response.status).end()
+    return
+  }
+
   let html = await response.text()
   // Inject vite's dev <head> (HMR client) and the client entry so the
   // server-rendered page hydrates.
@@ -38,6 +55,6 @@ export async function render({
   )
 
   res.status(response.status)
-  res.setHeader('content-type', 'text/html')
+  if (!res.getHeader('content-type')) res.setHeader('content-type', 'text/html')
   res.end(html)
 }

@@ -15,13 +15,35 @@ import {
 } from '@tanstack/svelte-router'
 
 import {
+  Route as RedirectRouteImport,
+  default as RedirectRouteComponent,
+} from './routes/redirect.svelte'
+import {
   Route as PostsRouteImport,
   default as PostsRouteComponent,
 } from './routes/posts.svelte'
+import {
+  Route as BoomRouteImport,
+  default as BoomRouteComponent,
+} from './routes/boom.svelte'
+import {
+  Route as IndexRouteImport,
+  default as IndexRouteComponent,
+} from './routes/index.svelte'
+import {
+  Route as PostsPostIdRouteImport,
+  default as PostsPostIdRouteComponent,
+} from './routes/posts.$postId.svelte'
 
 const rootRouteImport = createRootRoute()
-const IndexRouteImport = createFileRoute('/')()
 
+const RedirectRoute = RedirectRouteImport.update({
+  id: '/redirect',
+  path: '/redirect',
+  getParentRoute: () => rootRouteImport,
+} as any).update({
+  component: RedirectRouteComponent,
+})
 const PostsRoute = PostsRouteImport.update({
   id: '/posts',
   path: '/posts',
@@ -29,50 +51,86 @@ const PostsRoute = PostsRouteImport.update({
 } as any).update({
   component: PostsRouteComponent,
 })
+const BoomRoute = BoomRouteImport.update({
+  id: '/boom',
+  path: '/boom',
+  getParentRoute: () => rootRouteImport,
+} as any).update({
+  component: BoomRouteComponent,
+})
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).update({
-  component: lazyRouteComponent(
-    () => import('./routes/index.svelte'),
-    'default',
-  ),
+  component: IndexRouteComponent,
+})
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => PostsRoute,
+} as any).update({
+  component: PostsPostIdRouteComponent,
 })
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/posts': typeof PostsRoute
+  '/boom': typeof BoomRoute
+  '/posts': typeof PostsRouteWithChildren
+  '/redirect': typeof RedirectRoute
+  '/posts/$postId': typeof PostsPostIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/posts': typeof PostsRoute
+  '/boom': typeof BoomRoute
+  '/posts': typeof PostsRouteWithChildren
+  '/redirect': typeof RedirectRoute
+  '/posts/$postId': typeof PostsPostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/posts': typeof PostsRoute
+  '/boom': typeof BoomRoute
+  '/posts': typeof PostsRouteWithChildren
+  '/redirect': typeof RedirectRoute
+  '/posts/$postId': typeof PostsPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/posts'
+  fullPaths: '/' | '/boom' | '/posts' | '/redirect' | '/posts/$postId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/posts'
-  id: '__root__' | '/' | '/posts'
+  to: '/' | '/boom' | '/posts' | '/redirect' | '/posts/$postId'
+  id: '__root__' | '/' | '/boom' | '/posts' | '/redirect' | '/posts/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PostsRoute: typeof PostsRoute
+  BoomRoute: typeof BoomRoute
+  PostsRoute: typeof PostsRouteWithChildren
+  RedirectRoute: typeof RedirectRoute
 }
 
 declare module '@tanstack/svelte-router' {
   interface FileRoutesByPath {
+    '/redirect': {
+      id: '/redirect'
+      path: '/redirect'
+      fullPath: '/redirect'
+      preLoaderRoute: typeof RedirectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/posts': {
       id: '/posts'
       path: '/posts'
       fullPath: '/posts'
       preLoaderRoute: typeof PostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/boom': {
+      id: '/boom'
+      path: '/boom'
+      fullPath: '/boom'
+      preLoaderRoute: typeof BoomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -82,12 +140,31 @@ declare module '@tanstack/svelte-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof PostsRoute
+    }
   }
 }
 
+interface PostsRouteChildren {
+  PostsPostIdRoute: typeof PostsPostIdRoute
+}
+
+const PostsRouteChildren: PostsRouteChildren = {
+  PostsPostIdRoute: PostsPostIdRoute,
+}
+
+const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PostsRoute: PostsRoute,
+  BoomRoute: BoomRoute,
+  PostsRoute: PostsRouteWithChildren,
+  RedirectRoute: RedirectRoute,
 }
 export const routeTree = rootRouteImport
   .update({
