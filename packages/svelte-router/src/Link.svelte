@@ -157,6 +157,12 @@
     router.preloadRoute(buildOpts as any).catch(() => {})
   }
 
+  // Not `$state`: `bind:this` assigns this once during mount, before any
+  // `$effect` runs, and the element reference never changes afterward — so the
+  // viewport-preload effect already sees the bound element on its first run. (We
+  // can't use the `$state` rune here anyway: Link has a `state` prop, and a `$`-
+  // prefixed `state` is parsed as a store subscription.)
+  // svelte-ignore non_reactive_update
   let anchorEl: HTMLAnchorElement | undefined
   let observer: IntersectionObserver | undefined
 
@@ -314,25 +320,34 @@
     {/if}
   </a>
 {:else if typeof _asChild === 'string'}
+  <!--
+    `<svelte:element>` with a dynamic `this` types its attributes as the generic
+    `HTMLAttributes<any>`, which has no anchor-specific props (`href`/`target`/
+    `rel`). Spreading them as one `Record` applies them without the
+    per-attribute known-property check. `bind:this` stays a directive (can't be
+    spread).
+  -->
   <svelte:element
     this={_asChild}
     bind:this={anchorEl}
-    href={disabled ? undefined : href}
-    {target}
-    {rel}
-    {disabled}
-    role={disabled ? 'link' : undefined}
-    aria-disabled={disabled ? 'true' : undefined}
-    data-status={isActive ? 'active' : undefined}
-    aria-current={isActive ? 'page' : undefined}
-    class={mergedClass}
-    style={mergedStyle}
-    onclick={handleClick}
-    onfocus={handleFocus}
-    onmouseenter={handleMouseEnter}
-    onmouseover={handleMouseEnter}
-    ontouchstart={handleTouchStart}
-    {...remainingRest}
+    {...{
+      href: disabled ? undefined : href,
+      target,
+      rel,
+      disabled,
+      role: disabled ? 'link' : undefined,
+      'aria-disabled': disabled ? 'true' : undefined,
+      'data-status': isActive ? 'active' : undefined,
+      'aria-current': isActive ? 'page' : undefined,
+      class: mergedClass,
+      style: mergedStyle,
+      onclick: handleClick,
+      onfocus: handleFocus,
+      onmouseenter: handleMouseEnter,
+      onmouseover: handleMouseEnter,
+      ontouchstart: handleTouchStart,
+      ...remainingRest,
+    } as Record<string, unknown>}
   >
     {#if children}
       {@render children({ isActive })}
