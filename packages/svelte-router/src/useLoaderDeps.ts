@@ -42,5 +42,5 @@ export function useLoaderDeps<
     select: (s: any) => {
       return o.select ? o.select(s.loaderDeps) : s.loaderDeps
     },
-  } as any) as any
+  }) as any
 }

@@ -1,5 +1,5 @@
-import type { Component } from 'svelte'
 import Link from './Link.svelte'
+import type { Component } from 'svelte'
 
 /**
  * Creates a custom Link variant that renders the given element/component

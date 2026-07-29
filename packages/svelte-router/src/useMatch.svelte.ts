@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion --
+   Svelte's `getContext()` is untyped (it returns `unknown`), and `svelte-check`
+   resolves it to `{}` where plain `tsc` infers something narrower. The rule
+   therefore reports these assertions as redundant, but removing them breaks
+   `pnpm test:types`. Keep them; do not let `eslint --fix` strip them. */
 import { getContext } from 'svelte'
 import { useSelector } from '@tanstack/svelte-store'
 import { invariant } from '@tanstack/router-core'
@@ -5,8 +10,8 @@ import { useRouter } from './useRouter'
 import {
   defaultNearestMatchContext,
   nearestMatchContextKey,
-  type NearestMatchContextValue,
 } from './matchContext'
+import type { NearestMatchContextValue } from './matchContext'
 import type {
   AnyRouter,
   MakeRouteMatch,

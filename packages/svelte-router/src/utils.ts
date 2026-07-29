@@ -2,7 +2,7 @@ import type { Component, Snippet } from 'svelte'
 
 const SNIPPET_SYMBOL = Symbol.for('svelte.snippet')
 
-export function isSnippet(value: unknown): value is Snippet<unknown[]> {
+export function isSnippet(value: unknown): value is Snippet<Array<unknown>> {
   return (
     typeof value === 'function' &&
     (SNIPPET_SYMBOL in value ||

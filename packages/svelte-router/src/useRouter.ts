@@ -5,7 +5,7 @@ import type { AnyRouter, RegisteredRouter } from '@tanstack/router-core'
 export function useRouter<TRouter extends AnyRouter = RegisteredRouter>(opts?: {
   warn?: boolean
 }): TRouter {
-  const value = getContext(routerContextKey) as TRouter | undefined
+  const value = getContext(routerContextKey)
   if (process.env.NODE_ENV !== 'production') {
     if ((opts?.warn ?? true) && !value) {
       console.warn(

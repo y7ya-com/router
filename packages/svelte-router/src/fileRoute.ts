@@ -22,11 +22,11 @@ import type {
   Register,
   RegisteredRouter,
   ResolveParams,
-  Route as RouteType,
   RouteById,
   RouteConstraints,
   RouteIds,
   RouteLoaderEntry,
+  Route as RouteType,
   UpdatableRouteOptions,
   UseNavigateResult,
 } from '@tanstack/router-core'
@@ -218,7 +218,7 @@ export class LazyRoute<TRoute extends AnyRoute> {
   useNavigate = (): UseNavigateResult<TRoute['fullPath']> => {
     const router = useRouter()
     return useNavigate({
-      from: router.routesById[this.options.id]?.fullPath as any,
+      from: router.routesById[this.options.id]?.fullPath,
     })
   }
 }
