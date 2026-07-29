@@ -1,11 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion --
+   See the note in `useMatch.svelte.ts`: `getContext()` types differently under
+   `svelte-check` than under plain `tsc`, so these assertions are load-bearing
+   even though the rule reports them as redundant. */
 import { getContext } from 'svelte'
 import { useSelector } from '@tanstack/svelte-store'
 import { useRouter } from './useRouter'
 import {
   defaultNearestMatchContext,
   nearestMatchContextKey,
-  type NearestMatchContextValue,
 } from './matchContext'
+import type { NearestMatchContextValue } from './matchContext'
 import type {
   AnyRouter,
   DeepPartial,

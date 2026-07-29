@@ -340,7 +340,7 @@ export class RouteApi<
   > => {
     const router = useRouter()
     return useNavigate({
-      from: (router.routesById[this.id as string]?.fullPath ?? '/') as any,
+      from: (router.routesById[this.id as string]?.fullPath ?? '/'),
     })
   }
 
@@ -348,7 +348,7 @@ export class RouteApi<
   Link: any = ((internals: any, props: any) => {
     const router = useRouter()
     const fullPath =
-      (router.routesById[this.id as string] as any)?.fullPath ?? '/'
+      (router.routesById[this.id as string])?.fullPath ?? '/'
     return (LinkComponent as any)(internals, { from: fullPath, ...props })
   }) as any
 

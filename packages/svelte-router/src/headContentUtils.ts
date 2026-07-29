@@ -132,7 +132,7 @@ export function useTags(assetCrossOrigin?: AssetCrossOriginConfig): {
       matches
         .map((match) => match.styles!)
         .flat(1)
-        .filter(Boolean) as Array<any>
+        .filter(Boolean)
     ).map(({ children, ...style }) => ({
       tag: 'style' as const,
       attrs: { ...style, nonce },
@@ -143,7 +143,7 @@ export function useTags(assetCrossOrigin?: AssetCrossOriginConfig): {
       matches
         .map((match) => match.headScripts!)
         .flat(1)
-        .filter(Boolean) as Array<any>
+        .filter(Boolean)
     ).map(({ children, ...script }) => ({
       tag: 'script' as const,
       attrs: { ...script, nonce },

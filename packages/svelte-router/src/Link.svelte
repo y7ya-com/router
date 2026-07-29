@@ -4,9 +4,8 @@
   import type { Component, Snippet } from 'svelte'
   import { useSelector } from '@tanstack/svelte-store'
   import { useRouter } from './useRouter'
-  import { onMount, onDestroy } from 'svelte'
-
-  type LinkStateProps = {
+  
+type LinkStateProps = {
     class?: string
     style?: Record<string, unknown> | string
     [key: string]: unknown

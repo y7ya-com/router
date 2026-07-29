@@ -54,7 +54,11 @@
      nothing. -->
 <svelte:head>
   {#if !suppressed}
-    {#each tagsSel.current as tag}
+    <!-- The style/script branches serialize a whole element and emit it with
+    `{@html}`: `<svelte:head>` can't host `<svelte:element>`, so the tag has to
+    be built as a string. Contents come from route `head` options and the build
+    manifest — author-controlled, never user input. -->
+    {#each tagsSel.current as tag, i (i)}
       {#if tag.tag === 'title'}
         <title>{tag.children}</title>
       {:else if tag.tag === 'meta'}
@@ -62,8 +66,10 @@
       {:else if tag.tag === 'link'}
         <link {...tag.attrs} />
       {:else if tag.tag === 'style'}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html styleTagHtml(tag)}
       {:else if tag.tag === 'script'}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html scriptTagHtml(tag)}
       {/if}
     {/each}

@@ -78,4 +78,8 @@
   )
 </script>
 
+<!-- The router's own dehydration/bootstrap scripts, serialized above. These
+must reach the document as executable script elements, so escaping is not an
+option. The content is router-generated, never user input. -->
+<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 {@html scriptsHtml}
