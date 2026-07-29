@@ -3,7 +3,7 @@
   import RouterProvider from '../RouterProvider.svelte'
   import HeadContent from '../HeadContent.svelte'
   import Scripts from '../Scripts.svelte'
-  import { routerContextKey } from '../routerContext'
+  import { headSlotContextKey, routerContextKey } from '../routerContext'
   import type { AnyRouter } from '@tanstack/router-core'
 
   type Props = { router: AnyRouter }
@@ -13,6 +13,9 @@
   // don't inherit the context it sets. Establish it at this level so their
   // `useRouter()` resolves during server render.
   setContext(routerContextKey, router)
+  // Claim a single head slot so a stray second `<HeadContent />` (e.g. one the
+  // user also placed in their root route) renders nothing — no duplicate metas.
+  setContext(headSlotContextKey, { used: false })
 </script>
 
 <!--

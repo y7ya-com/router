@@ -1,7 +1,19 @@
 <script lang="ts">
+  import { getContext } from 'svelte'
   import { useTags } from './headContentUtils'
+  import { headSlotContextKey } from './routerContext'
 
   const tagsSel = useTags()
+
+  // Render at most once per SSR tree. The scaffolds (RouterServer/RouterClient)
+  // seed a head slot; the first `HeadContent` claims it and renders, any later
+  // instance becomes a no-op (prevents duplicate `<meta>` tags). In pure SPA
+  // mode there's no slot, so this is always `false` and every instance renders.
+  const headSlot = getContext(headSlotContextKey) as
+    | { used: boolean }
+    | undefined
+  const suppressed =
+    !!headSlot && (headSlot.used || ((headSlot.used = true), false))
 
   // Svelte does not evaluate `{@html}` (or any interpolation) inside a literal
   // style/script element — their content is treated as raw text. Tags carrying
@@ -37,18 +49,23 @@
   }
 </script>
 
+<!-- `<svelte:head>` must be a top-level element (can't be wrapped in a block),
+     so the single-render guard lives inside it: when suppressed, it renders
+     nothing. -->
 <svelte:head>
-  {#each tagsSel.current as tag}
-    {#if tag.tag === 'title'}
-      <title>{tag.children}</title>
-    {:else if tag.tag === 'meta'}
-      <meta {...tag.attrs} />
-    {:else if tag.tag === 'link'}
-      <link {...tag.attrs} />
-    {:else if tag.tag === 'style'}
-      {@html styleTagHtml(tag)}
-    {:else if tag.tag === 'script'}
-      {@html scriptTagHtml(tag)}
-    {/if}
-  {/each}
+  {#if !suppressed}
+    {#each tagsSel.current as tag}
+      {#if tag.tag === 'title'}
+        <title>{tag.children}</title>
+      {:else if tag.tag === 'meta'}
+        <meta {...tag.attrs} />
+      {:else if tag.tag === 'link'}
+        <link {...tag.attrs} />
+      {:else if tag.tag === 'style'}
+        {@html styleTagHtml(tag)}
+      {:else if tag.tag === 'script'}
+        {@html scriptTagHtml(tag)}
+      {/if}
+    {/each}
+  {/if}
 </svelte:head>

@@ -4,7 +4,7 @@
   import { isServer } from '@tanstack/router-core/isServer'
   import RouterProvider from '../RouterProvider.svelte'
   import HeadContent from '../HeadContent.svelte'
-  import { routerContextKey } from '../routerContext'
+  import { headSlotContextKey, routerContextKey } from '../routerContext'
   import type { AnyRouter } from '@tanstack/router-core'
 
   type Props = { router: AnyRouter }
@@ -13,6 +13,8 @@
   // `HeadContent` is a sibling of `RouterProvider`, so set the router context at
   // this level (same as RouterServer) so its `useRouter()` resolves.
   setContext(routerContextKey, router)
+  // Claim a single head slot so a stray second `<HeadContent />` is a no-op.
+  setContext(headSlotContextKey, { used: false })
 
   // Kick off hydration synchronously. `hydrate()` reads the dehydrated match
   // state into the stores up front (then resolves async loaders in the

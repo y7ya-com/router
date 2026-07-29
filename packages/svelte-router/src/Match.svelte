@@ -83,7 +83,7 @@
     const routeIdTarget = nfErr?.routeId
     const hasOwnNotFound =
       !!r?.options.notFoundComponent ||
-      (r?.isRoot && !!rtr.options.defaultNotFoundComponent)
+      !!(r?.isRoot && rtr.options.defaultNotFoundComponent)
     if (routeIdTarget) {
       // Explicit routeId: only the matching route renders its notFoundComponent.
       return r?.id === routeIdTarget && hasOwnNotFound
@@ -116,7 +116,13 @@
 {:else if status === 'error'}
   {#if route?.options.errorComponent || router.options.defaultErrorComponent}
     {@const RouteErrorComponent = (errorComponent ?? ErrorComponent) as Component<any>}
-    <RouteErrorComponent error={match.error} info={{ componentStack: '' }} />
+    <!-- Direct (non-boundary) error render: no boundary reset is available
+         here, so `reset` is undefined — mirrors react-router's Match.tsx. -->
+    <RouteErrorComponent
+      error={match.error}
+      reset={undefined as any}
+      info={{ componentStack: '' }}
+    />
   {:else}
     <ErrorBubbler error={match.error} />
   {/if}
@@ -133,7 +139,7 @@
     {:else}
       <Outlet />
     {/if}
-    {#snippet failed(error)}
+    {#snippet failed(error, reset)}
       {#if isNotFound(error)}
         {#if shouldHandleNotFoundHere(match, route, router, error)}
           {#if isSnippet(notFoundComponent)}
@@ -149,7 +155,14 @@
         {#if isSnippet(errorComponent)}
           {@render (errorComponent as Snippet<[]>)()}
         {:else}
-          <RouteErrorComponent error={error as Error} info={{ componentStack: '' }} />
+          <!-- Boundary-caught error: `reset` re-renders the boundary contents,
+               so the error component's `props.reset()` actually retries (the
+               Svelte analogue of react-router's CatchBoundary reset). -->
+          <RouteErrorComponent
+            error={error as Error}
+            reset={reset as () => void}
+            info={{ componentStack: '' }}
+          />
         {/if}
       {:else}
         <ErrorBubbler error={error} />

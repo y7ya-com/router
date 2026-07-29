@@ -43,8 +43,12 @@
   {:else}
     <svelte:boundary>
       <Matches />
-      {#snippet failed(error)}
-        <ErrorComponent error={error as Error} info={{ componentStack: '' }} />
+      {#snippet failed(error, reset)}
+        <ErrorComponent
+          error={error as Error}
+          reset={reset as () => void}
+          info={{ componentStack: '' }}
+        />
       {/snippet}
     </svelte:boundary>
   {/if}
