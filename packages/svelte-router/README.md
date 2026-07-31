@@ -44,10 +44,18 @@ The following components ship as no-op v1 stubs:
 
 - `ScrollRestoration` — manual scroll restoration is supported by
   `router-core` but the Svelte adapter component is a placeholder.
+  (`useElementScrollRestoration` is exported and functional.)
 - `ScriptOnce` — SSR script-once emission is not wired through; the
   component renders nothing on the client.
-- SSR streaming render (`renderRouterToStream`, `RouterServer.svelte`) —
-  client-only for now.
+
+SSR string rendering (`renderRouterToString`) and the basic streaming path
+(`renderRouterToStream`) are functional and exercised by tests; two advanced
+streaming corpus tests (bot-abort and pipeTo-rejection teardown) remain
+skipped — see `scripts/port-tests/.j2signore`.
+
+Vue-only non-analogues, intentionally absent: `Body`/`Html` (vue-start's
+document components — the Svelte shell is `RouterServer`, which renders the
+`#app` mount point itself) and `createRouterConfig`.
 
 Everything else listed under "What works" is functional and exercised by
 the test corpus.
