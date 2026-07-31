@@ -6,7 +6,7 @@ import LazyComponent from './LazyComponent.svelte'
  * when first rendered. Returned value is itself a Svelte 5 component callable
  * — the route tree wires it as `component: lazyRouteComponent(...)`.
  *
- * Mirrors `lazyRouteComponent` from `react-router` / `solid-router`: a shared
+ * A shared
  * load promise (so concurrent renders don't double-fetch), a `.preload()`
  * hook the router can call on intent/viewport hints, and a one-shot
  * recovery on `ModuleNotFoundError` (so stale-deploy URLs trigger a single
@@ -41,7 +41,7 @@ export function lazyRouteComponent<
   // component function by hand here (which the Svelte 5 callable contract
   // makes brittle to reproduce).
   const wrapped: any = (internals: any, props: any) => {
-    // Recover from stale-deploy module-not-found by reloading once. Mirrors
+    // Recover from stale-deploy module-not-found by reloading once, like
     // the React / Solid versions of this guard.
     if (loadError) {
       if (

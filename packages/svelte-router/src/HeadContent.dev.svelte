@@ -3,10 +3,10 @@
   import HeadContent from './HeadContent.svelte'
   import { useHydrated } from './useHydrated.svelte'
 
-  // Development variant — mirrors solid-router's HeadContent.dev: once
-  // hydration completes, remove any dev-styles links Vite injected during SSR
-  // so they don't linger alongside the client-injected styles. The production
-  // component never carries DEV_STYLES_ATTR tags, so it skips all of this.
+  // Development variant: once hydration completes, remove any dev-styles
+  // links Vite injected during SSR so they don't linger alongside the
+  // client-injected styles. The production component never carries
+  // DEV_STYLES_ATTR tags.
   const hydrated = useHydrated()
 
   $effect(() => {

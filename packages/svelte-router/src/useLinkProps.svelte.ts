@@ -71,19 +71,12 @@ const OWN_KEYS = new Set([
 ])
 
 /**
- * The link computations behind `<Link>`, exposed as a hook — mirrors
- * solid-router's `useLinkProps`. Callers building a custom link get the same
- * href/active-state/handler behaviour as `<Link>` itself, because `Link.svelte`
- * consumes this hook rather than reimplementing it.
- *
- * Must be called during component init (it subscribes to the router's location
- * store). `getOptions` is a getter so the computations track the caller's
- * reactive props.
- *
- * Returned values are getters over runes: read them in a template (or a
- * `$derived`) and they stay live. `attrs` is the complete spreadable prop bag —
- * `<a {...link.attrs}>` — including composed event handlers that run a
- * user-supplied handler first and honour `preventDefault`.
+ * The link computations behind `<Link>`, exposed as a hook. Must be called
+ * during component init (it subscribes to the router's location store);
+ * `getOptions` is a getter so the computations track the caller's reactive
+ * props. Returned values are getters over runes — read them in a template (or
+ * a `$derived`) and they stay live. `attrs` is the complete spreadable prop
+ * bag: `<a {...link.attrs}>`.
  */
 export function useLinkProps(getOptions: () => UseLinkPropsOptions) {
   const router = useRouter()
@@ -284,7 +277,7 @@ export function useLinkProps(getOptions: () => UseLinkPropsOptions) {
   // later spread overrides an earlier attribute — so spreading `remainingRest`
   // after our handlers would silently replace them and break navigation.
   // Instead the composed handlers are applied *after* the spread and call the
-  // user's handler first, mirroring React's `composeHandlers`: if the user
+  // user's handler first: if the user
   // calls `preventDefault()`, ours is skipped. These wrappers are created once
   // (they read `remainingRest` at call time), so handlers aren't re-attached on
   // every active/inactive change.

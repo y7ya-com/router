@@ -6,8 +6,8 @@
   let { router }: { router: TRouter } = $props()
 
   // After Svelte hydration completes, signal that router hydration is done so
-  // stream cleanup can run — mirrors vue-start-client's onMounted + nextTick
-  // (the tick waits for child onMount work before allowing cleanup).
+  // stream cleanup can run. The tick waits for child onMount work before
+  // allowing cleanup.
   onMount(() => {
     void tick().then(() => {
       ;(window as any).$_TSR?.h()

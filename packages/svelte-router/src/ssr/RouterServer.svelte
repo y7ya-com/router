@@ -19,12 +19,10 @@
 </script>
 
 <!--
-  Only the app (RouterProvider) goes inside `#app`; that's the single element the
-  client hydrates. HeadContent renders into `<svelte:head>` (the document head)
-  and Scripts (dehydration + asset scripts) sit *after* `#app` — both outside the
-  hydration boundary, so the server/client trees match. This mirrors how
-  solid-router uses `<NoHydration>` around the scaffold + `<Hydration>` around the
-  app.
+  Only the app (RouterProvider) goes inside `#app`; that's the single element
+  the client hydrates. HeadContent renders into `<svelte:head>` (the document
+  head) and Scripts (dehydration + asset scripts) sit *after* `#app` — both
+  outside the hydration boundary, so the server/client trees match.
 -->
 <HeadContent />
 <div id="app"><RouterProvider {router} /></div>
