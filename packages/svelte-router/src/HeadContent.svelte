@@ -5,10 +5,10 @@
 
   const tagsSel = useTags()
 
-  // Render at most once per SSR tree. The scaffolds (RouterServer/RouterClient)
-  // seed a head slot; the first `HeadContent` claims it and renders, any later
-  // instance becomes a no-op (prevents duplicate `<meta>` tags). In pure SPA
-  // mode there's no slot, so this is always `false` and every instance renders.
+  // Render at most once per tree. The scaffolds (RouterServer/RouterClient)
+  // seed a head slot, and `RouterProvider` seeds one when they haven't (pure
+  // SPA); the first `HeadContent` claims it and renders, any later instance
+  // becomes a no-op (prevents duplicate `<meta>` tags).
   const headSlot = getContext(headSlotContextKey) as
     | { used: boolean }
     | undefined
