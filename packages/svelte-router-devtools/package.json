@@ -1,0 +1,60 @@
+{
+  "name": "@tanstack/svelte-router-devtools",
+  "version": "0.0.0-experimental",
+  "description": "Developer tools for TanStack Svelte Router \u2014 community port; mirrors @tanstack/solid-router-devtools / vue-router-devtools.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/y7ya-com/router.git",
+    "directory": "packages/svelte-router-devtools"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/tannerlinsley"
+  },
+  "keywords": [
+    "tanstack",
+    "svelte",
+    "router",
+    "devtools"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "test:types": "svelte-check --tsconfig ./tsconfig.json",
+    "build": "svelte-package --input ./src --output ./dist"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "@tanstack/router-devtools-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/router-core": "workspace:^",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.3.7",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0",
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "vite": "*",
+    "typescript": "^5.7.2"
+  }
+}
