@@ -444,3 +444,78 @@ export function createRouteMask<
 ): RouteMask<TRouteTree> {
   return opts as any
 }
+
+/**
+ * A special route that renders when no other route matches. Mirrors
+ * solid-router's NotFoundRoute: fixed `'/404'` path/id, no params, and the
+ * options that don't apply to a catch-all (path, id, caseSensitive, params
+ * parsing) omitted.
+ *
+ * The generic list follows this adapter's `Route` (which adds
+ * TFileRouteTypes/TMiddlewares over solid's); both extra slots stay `unknown`.
+ */
+export class NotFoundRoute<
+  TRegister,
+  TParentRoute extends AnyRootRoute,
+  TRouterContext = AnyContext,
+  TRouteContextFn = AnyContext,
+  TBeforeLoadFn = AnyContext,
+  TSearchValidator = undefined,
+  TLoaderDeps extends Record<string, any> = {},
+  TLoaderFn = undefined,
+  TChildren = unknown,
+  TSSR = unknown,
+  THandlers = undefined,
+> extends Route<
+  TRegister,
+  TParentRoute,
+  '/404',
+  '/404',
+  '404',
+  '404',
+  TSearchValidator,
+  {},
+  TRouterContext,
+  TRouteContextFn,
+  TBeforeLoadFn,
+  TLoaderDeps,
+  TLoaderFn,
+  TChildren,
+  unknown,
+  TSSR,
+  unknown,
+  THandlers
+> {
+  constructor(
+    options: Omit<
+      RouteOptions<
+        TRegister,
+        TParentRoute,
+        string,
+        string,
+        string,
+        string,
+        TSearchValidator,
+        {},
+        TLoaderDeps,
+        TLoaderFn,
+        TRouterContext,
+        TRouteContextFn,
+        TBeforeLoadFn,
+        TSSR,
+        THandlers
+      >,
+      | 'caseSensitive'
+      | 'parseParams'
+      | 'stringifyParams'
+      | 'path'
+      | 'id'
+      | 'params'
+    >,
+  ) {
+    super({
+      ...(options as any),
+      id: '404',
+    })
+  }
+}
