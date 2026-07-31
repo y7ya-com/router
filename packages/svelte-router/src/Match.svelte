@@ -20,22 +20,32 @@
 
   // matchStores is a Map (non-reactive), but each entry is a reactive atom.
   // matchId is a prop and can change — we subscribe imperatively to handle source changes.
-  // Seed synchronously from the store so the match is present on the very first
-  // render — including server render, where `$effect` never runs (without this,
-  // `match` would stay `undefined` and nothing would server-render).
-  let match = $state<AnyRouteMatch | undefined>(
-    router.stores.matchStores.get(matchId)?.get(),
-  )
+  //
+  // The read MUST be a `$derived`, not a `$state` written from an `$effect`:
+  // `$effect` runs *after* the render pass, so an effect-written `match` stays
+  // on the outgoing match for one full render while `matchId` already points at
+  // the incoming one. During that render the outgoing route's component is still
+  // mounted even though its match has already been dropped from `matchesId`, so
+  // its `useMatch`/`useRouteContext({ from })` selectors resolve to `undefined`
+  // and unguarded reads throw. Deriving keeps the component swap in the same
+  // pass as the `matchId` change. It also works on the server, where `$effect`
+  // never runs.
+  //
+  // `matchVersion` is only a reactivity trigger: the atom's value is invisible
+  // to Svelte, so the subscription bumps a counter that the derived reads.
+  let matchVersion = $state(0)
   $effect(() => {
     const store = router.stores.matchStores.get(matchId)
-    if (!store) {
-      match = undefined
-      return
-    }
-    match = store.get()
-    return store.subscribe((next: AnyRouteMatch) => {
-      match = next
+    if (!store) return
+    return store.subscribe(() => {
+      matchVersion++
     }).unsubscribe
+  })
+  const match = $derived.by(() => {
+    matchVersion
+    return router.stores.matchStores.get(matchId)?.get() as
+      | AnyRouteMatch
+      | undefined
   })
 
   const pendingRouteIdsSel = useSelector(router.stores.pendingRouteIds)

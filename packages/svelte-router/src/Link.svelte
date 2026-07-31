@@ -293,6 +293,34 @@ type LinkStateProps = {
     }
     return r
   })
+
+  // A user-supplied `onclick` (etc.) lands in `remainingRest`, and in Svelte a
+  // later spread overrides an earlier attribute — so spreading `remainingRest`
+  // after our handlers would silently replace them and break navigation.
+  // Instead the composed handlers are applied *after* the spread and call the
+  // user's handler first, mirroring React's `composeHandlers`: if the user
+  // calls `preventDefault()`, ours is skipped. These wrappers are created once
+  // (they read `remainingRest` at call time), so handlers aren't re-attached on
+  // every active/inactive change.
+  const composeHandler =
+    (key: string, own: (e: any) => void) =>
+    (e: Event) => {
+      if (e.defaultPrevented) return
+      const user = remainingRest[key] as ((e: Event) => void) | undefined
+      if (typeof user === 'function') {
+        user(e)
+        if (e.defaultPrevented) return
+      }
+      own(e)
+    }
+
+  const composedHandlers = {
+    onclick: composeHandler('onclick', handleClick),
+    onfocus: composeHandler('onfocus', handleFocus),
+    onmouseenter: composeHandler('onmouseenter', handleMouseEnter),
+    onmouseover: composeHandler('onmouseover', handleMouseEnter),
+    ontouchstart: composeHandler('ontouchstart', handleTouchStart),
+  }
 </script>
 
 {#if _asChild === undefined}
@@ -307,12 +335,8 @@ type LinkStateProps = {
     aria-current={isActive ? 'page' : undefined}
     class={mergedClass}
     style={mergedStyle}
-    onclick={handleClick}
-    onfocus={handleFocus}
-    onmouseenter={handleMouseEnter}
-    onmouseover={handleMouseEnter}
-    ontouchstart={handleTouchStart}
     {...remainingRest}
+    {...composedHandlers}
   >
     {#if children}
       {@render children({ isActive })}
@@ -340,12 +364,8 @@ type LinkStateProps = {
       'aria-current': isActive ? 'page' : undefined,
       class: mergedClass,
       style: mergedStyle,
-      onclick: handleClick,
-      onfocus: handleFocus,
-      onmouseenter: handleMouseEnter,
-      onmouseover: handleMouseEnter,
-      ontouchstart: handleTouchStart,
       ...remainingRest,
+      ...composedHandlers,
     } as Record<string, unknown>}
   >
     {#if children}
@@ -365,12 +385,8 @@ type LinkStateProps = {
     aria-current={isActive ? 'page' : undefined}
     class={mergedClass}
     style={mergedStyle}
-    onclick={handleClick}
-    onfocus={handleFocus}
-    onmouseenter={handleMouseEnter}
-    onmouseover={handleMouseEnter}
-    ontouchstart={handleTouchStart}
     {...remainingRest}
+    {...composedHandlers}
   >
     {#if children}
       {@render children({ isActive })}
