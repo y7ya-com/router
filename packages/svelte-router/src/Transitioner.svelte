@@ -44,18 +44,8 @@
       console.error(err)
     })
 
-    // If the router was already loaded before mount (test calling
-    // `await router.load()` then `render(...)`), the prev→current isAnyPending
-    // transition never happens because both start as false. Emit a one-time
-    // onResolved + onBeforeRouteMount so subscribers see the initial render.
-    if (!isLoadingSel.current && !hasPendingSel.current) {
-      const changeInfo = getLocationChangeInfo(
-        router.stores.location.get(),
-        router.stores.resolvedLocation.get(),
-      )
-      router.emit({ type: 'onBeforeRouteMount', ...changeInfo })
-      router.emit({ type: 'onResolved', ...changeInfo })
-    }
+    // The "already settled" case is handled by the settle block in the $effect
+    // below, which keys off `status` rather than a pending edge — see there.
   })
 
   onDestroy(() => {
@@ -96,11 +86,23 @@
       })
     }
 
-    if (prevIsAnyPending && !currentIsAnyPending) {
+    // Settle whenever nothing is pending and the router hasn't settled yet.
+    // Keying off `status` rather than a `prevIsAnyPending → false` edge is
+    // essential: with a small tree or synchronous loaders the load finishes
+    // before this effect first runs, so `prevIsAnyPending` is never true, the
+    // edge never occurs, and `status` would stay 'pending' forever. Core sets
+    // `status` back to 'pending' for each new navigation, so this still fires
+    // exactly once per cycle.
+    if (!currentIsAnyPending && router.stores.status.get() === 'pending') {
       const changeInfo = getLocationChangeInfo(
         router.stores.location.get(),
         router.stores.resolvedLocation.get(),
       )
+      // Only if the edge above didn't already emit it, so the
+      // onBeforeRouteMount → onResolved order holds either way.
+      if (!prevIsPagePending) {
+        router.emit({ type: 'onBeforeRouteMount', ...changeInfo })
+      }
       router.emit({ type: 'onResolved', ...changeInfo })
 
       batch(() => {
