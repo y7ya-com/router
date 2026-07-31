@@ -14295,6 +14295,37 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  packages/svelte-router-devtools:
+    dependencies:
+      '@tanstack/router-core':
+        specifier: workspace:*
+        version: link:../router-core
+      '@tanstack/router-devtools-core':
+        specifier: workspace:^
+        version: link:../router-devtools-core
+      '@tanstack/svelte-router':
+        specifier: workspace:^
+        version: link:../svelte-router
+    devDependencies:
+      '@sveltejs/package':
+        specifier: ^2.3.7
+        version: 2.5.8(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.2.0
+        version: 7.2.0(svelte@5.56.8(@typescript-eslint/types@8.57.1))(vite@8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0))
+      svelte:
+        specifier: ^5.0.0
+        version: 5.56.8(@typescript-eslint/types@8.57.1)
+      svelte-check:
+        specifier: ^4.0.0
+        version: 4.7.4(picomatch@4.0.4)(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.14
+        version: 8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0)
+
   packages/svelte-router-ssr-query:
     dependencies:
       '@tanstack/query-core':
@@ -14340,6 +14371,117 @@ importers:
       vitest:
         specifier: ^4.1.4
         version: 4.1.4(@types/node@25.0.9)(@vitest/ui@4.1.4)(jsdom@25.0.1)(msw@2.7.0(@types/node@25.0.9)(@typescript/typescript6@6.0.2))(vite@8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0))
+
+  packages/svelte-start:
+    dependencies:
+      '@rsbuild/core':
+        specifier: ^2.0.0
+        version: 2.0.14
+      '@tanstack/router-core':
+        specifier: workspace:*
+        version: link:../router-core
+      '@tanstack/start-client-core':
+        specifier: workspace:*
+        version: link:../start-client-core
+      '@tanstack/start-plugin-core':
+        specifier: workspace:*
+        version: link:../start-plugin-core
+      '@tanstack/start-server-core':
+        specifier: workspace:*
+        version: link:../start-server-core
+      '@tanstack/svelte-router':
+        specifier: workspace:*
+        version: link:../svelte-router
+      '@tanstack/svelte-start-client':
+        specifier: workspace:*
+        version: link:../svelte-start-client
+      '@tanstack/svelte-start-server':
+        specifier: workspace:*
+        version: link:../svelte-start-server
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
+    devDependencies:
+      '@sveltejs/package':
+        specifier: ^2.3.7
+        version: 2.5.8(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.2.0
+        version: 7.2.0(svelte@5.56.8(@typescript-eslint/types@8.57.1))(vite@8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0))
+      svelte:
+        specifier: ^5.0.0
+        version: 5.56.8(@typescript-eslint/types@8.57.1)
+      svelte-check:
+        specifier: ^4.0.0
+        version: 4.7.4(picomatch@4.0.4)(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.14
+        version: 8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0)
+
+  packages/svelte-start-client:
+    dependencies:
+      '@tanstack/router-core':
+        specifier: workspace:*
+        version: link:../router-core
+      '@tanstack/start-client-core':
+        specifier: workspace:*
+        version: link:../start-client-core
+      '@tanstack/svelte-router':
+        specifier: workspace:*
+        version: link:../svelte-router
+    devDependencies:
+      '@sveltejs/package':
+        specifier: ^2.3.7
+        version: 2.5.8(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.2.0
+        version: 7.2.0(svelte@5.56.8(@typescript-eslint/types@8.57.1))(vite@8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0))
+      svelte:
+        specifier: ^5.0.0
+        version: 5.56.8(@typescript-eslint/types@8.57.1)
+      svelte-check:
+        specifier: ^4.0.0
+        version: 4.7.4(picomatch@4.0.4)(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.14
+        version: 8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0)
+
+  packages/svelte-start-server:
+    dependencies:
+      '@tanstack/router-core':
+        specifier: workspace:*
+        version: link:../router-core
+      '@tanstack/start-server-core':
+        specifier: workspace:*
+        version: link:../start-server-core
+      '@tanstack/svelte-router':
+        specifier: workspace:*
+        version: link:../svelte-router
+    devDependencies:
+      '@sveltejs/package':
+        specifier: ^2.3.7
+        version: 2.5.8(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.2.0
+        version: 7.2.0(svelte@5.56.8(@typescript-eslint/types@8.57.1))(vite@8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0))
+      svelte:
+        specifier: ^5.0.0
+        version: 5.56.8(@typescript-eslint/types@8.57.1)
+      svelte-check:
+        specifier: ^4.0.0
+        version: 4.7.4(picomatch@4.0.4)(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.14
+        version: 8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0)
 
   packages/valibot-adapter:
     devDependencies:
@@ -33613,6 +33755,17 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@sveltejs/package@2.5.8(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)':
+    dependencies:
+      chokidar: 5.0.0
+      kleur: 4.1.5
+      sade: 1.8.1
+      semver: 7.8.2
+      svelte: 5.56.8(@typescript-eslint/types@8.57.1)
+      svelte2tsx: 0.7.59(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3)
+    transitivePeerDependencies:
+      - typescript
+
   '@sveltejs/vite-plugin-svelte@7.2.0(svelte@5.56.8(@typescript-eslint/types@8.57.1))(vite@8.0.14(@types/node@25.0.9)(esbuild@0.27.4)(jiti@2.7.0)(sass@1.97.2)(terser@5.37.0)(tsx@4.20.3)(yaml@2.9.0))':
     dependencies:
       deepmerge: 4.3.1
@@ -41821,6 +41974,19 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
+  svelte-check@4.7.4(picomatch@4.0.4)(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@sveltejs/load-config': 0.2.1
+      chokidar: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picocolors: 1.1.1
+      sade: 1.8.1
+      svelte: 5.56.8(@typescript-eslint/types@8.57.1)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - picomatch
+
   svelte-check@4.7.4(picomatch@4.0.4)(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@6.0.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -41852,6 +42018,13 @@ snapshots:
       scule: 1.3.0
       svelte: 5.56.8(@typescript-eslint/types@8.57.1)
       typescript: '@typescript/typescript6@6.0.2'
+
+  svelte2tsx@0.7.59(svelte@5.56.8(@typescript-eslint/types@8.57.1))(typescript@5.9.3):
+    dependencies:
+      dedent-js: 1.0.1
+      scule: 1.3.0
+      svelte: 5.56.8(@typescript-eslint/types@8.57.1)
+      typescript: 5.9.3
 
   svelte@5.56.8(@typescript-eslint/types@8.57.1):
     dependencies:

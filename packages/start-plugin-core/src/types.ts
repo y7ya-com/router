@@ -3,7 +3,7 @@ import type * as t from '@babel/types'
 import type { GeneratorResult } from '@tanstack/router-utils'
 import type { TanStackStartOutputConfig } from './schema'
 
-export type CompileStartFrameworkOptions = 'react' | 'solid' | 'vue'
+export type CompileStartFrameworkOptions = 'react' | 'solid' | 'vue' | 'svelte'
 
 export type ServerFnLookupAccess = { origin: 'client' } | { origin: 'server' }
 
