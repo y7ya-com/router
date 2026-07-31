@@ -15,10 +15,9 @@ import type {
 } from '@tanstack/router-core'
 
 /**
- * Mirrors solid-router's ValidateLinkOptions. Solid constrains against its
- * component-level LinkComponentProps; the Svelte adapter constrains against
- * router-core's LinkOptions, which carries the same from/to/mask inference.
- * `TComp` is kept for signature parity with the other adapters.
+ * Constrains a link options object against the route tree. The constraint is
+ * router-core's LinkOptions (there is no component-level LinkComponentProps
+ * here); `TComp` is unused but kept so the signature stays stable.
  */
 export type ValidateLinkOptions<
   TRouter extends AnyRouter = RegisteredRouter,

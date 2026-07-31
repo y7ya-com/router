@@ -80,9 +80,8 @@
   const status = $derived(match?.status)
 
   // Decide whether this Match should render `notFoundComponent` or bubble the
-  // not-found error up to a parent Match's boundary. Mirrors solid Match.tsx's
-  // CatchNotFound re-throw mechanism. The `errSrc` arg is the actual error
-  // (either from the match itself or bubbled into the boundary).
+  // not-found error up to a parent Match's boundary. The `errSrc` arg is the
+  // actual error (either from the match itself or bubbled into the boundary).
   function shouldHandleNotFoundHere(
     m: any,
     r: AnyRoute | undefined,
@@ -127,7 +126,7 @@
   {#if route?.options.errorComponent || router.options.defaultErrorComponent}
     {@const RouteErrorComponent = (errorComponent ?? ErrorComponent) as Component<any>}
     <!-- Direct (non-boundary) error render: no boundary reset is available
-         here, so `reset` is undefined — mirrors react-router's Match.tsx. -->
+         here, so `reset` is undefined. -->
     <RouteErrorComponent
       error={match.error}
       reset={undefined as any}
@@ -165,9 +164,8 @@
         {#if isSnippet(errorComponent)}
           {@render (errorComponent as Snippet<[]>)()}
         {:else}
-          <!-- Boundary-caught error: `reset` re-renders the boundary contents,
-               so the error component's `props.reset()` actually retries (the
-               Svelte analogue of react-router's CatchBoundary reset). -->
+          <!-- Boundary-caught error: `reset` re-renders the boundary
+               contents, so the error component's `props.reset()` retries. -->
           <RouteErrorComponent
             error={error as Error}
             reset={reset as () => void}

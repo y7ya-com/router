@@ -18,8 +18,7 @@
 
   let { router, Wrap, children, ...rest }: Props = $props()
 
-  // Allow the render site to update options on the router instance —
-  // mirrors solid-router's RouterContextProvider.
+  // Allow the render site to update options on the router instance.
   router.update({
     ...router.options,
     ...(rest as Partial<RouterOptions<any, any, any, any, any>>),
@@ -42,8 +41,8 @@
   }
 
   // `router.options.Wrap` is how integrations (e.g. ssr-query) inject a
-  // provider around the whole route tree — mirrors react/solid-router. The
-  // `Wrap` prop is composed outside it.
+  // provider around the whole route tree. The `Wrap` prop is composed
+  // outside it.
   const OptionsWrap = (router.options as { Wrap?: Component<{ children: Snippet }> })
     .Wrap
 </script>

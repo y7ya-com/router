@@ -95,7 +95,7 @@ export function useMatch<
     const store = router.stores.getRouteMatchStore(safeOpts.from as string)
 
     // Phase 1 — synchronous check at hook-call time is the ONLY throw site
-    // (mirrors solid-router). The reactive selector below must never throw,
+    // The reactive selector below must never throw,
     // otherwise a transiently-undefined match during a navigation / view
     // transition would crash instead of resolving to the next match.
     const initial = store.get()

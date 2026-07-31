@@ -41,9 +41,9 @@
     $props()
 
   // All link computation — href, active state, class/style merging, composed
-  // event handlers — lives in `useLinkProps` (also exported standalone,
-  // mirroring solid-router). This component adds only what needs a DOM
-  // element: the render branches and viewport/render preloading.
+  // event handlers — lives in `useLinkProps`, which is also exported
+  // standalone. This component adds only what needs a DOM element: the render
+  // branches and viewport/render preloading.
   const link = useLinkProps(() => linkProps)
 
   const disabled = $derived(linkProps.disabled as boolean | undefined)

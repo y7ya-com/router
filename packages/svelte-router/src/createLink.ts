@@ -8,7 +8,7 @@ import type {
 
 /**
  * Creates a custom Link variant that renders the given element/component
- * instead of `<a>`. Mirrors solid-router's `createLink`.
+ * instead of `<a>`.
  *
  * `target` can be:
  *  - a string HTML element name (e.g. `'button'`) — rendered via `<svelte:element>`
@@ -44,7 +44,7 @@ export type LinkOptionsFn<TComp> = <
 
 /**
  * Type-checks a link options object against the route tree without rendering
- * anything — an identity function at runtime. Mirrors solid-router.
+ * anything — an identity function at runtime.
  */
 export const linkOptions: LinkOptionsFn<'a'> = (options) => {
   return options as any

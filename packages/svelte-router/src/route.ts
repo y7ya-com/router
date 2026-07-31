@@ -160,7 +160,7 @@ export class Route<
     useNavigate({ from: this.fullPath as any })
 
   // Route-bound Link — equivalent to `<Link from={route.fullPath} ...>`.
-  // Matches the `route.Link` shorthand found in solid-router and react-router.
+  // The `route.Link` shorthand: a Link pre-bound to this route's path.
   Link: any = ((internals: any, props: any) =>
     (LinkComponent as any)(internals, {
       from: this.fullPath,
@@ -293,7 +293,7 @@ export class RootRoute<
   useNavigate = (): UseNavigateResult<'/'> =>
     useNavigate({ from: this.fullPath as any })
 
-  // Root-route-bound Link (rarely useful but matches solid/react parity).
+  // Root-route-bound Link.
   Link: any = ((internals: any, props: any) =>
     (LinkComponent as any)(internals, {
       from: this.fullPath,
@@ -446,13 +446,9 @@ export function createRouteMask<
 }
 
 /**
- * A special route that renders when no other route matches. Mirrors
- * solid-router's NotFoundRoute: fixed `'/404'` path/id, no params, and the
- * options that don't apply to a catch-all (path, id, caseSensitive, params
- * parsing) omitted.
- *
- * The generic list follows this adapter's `Route` (which adds
- * TFileRouteTypes/TMiddlewares over solid's); both extra slots stay `unknown`.
+ * A special route that renders when no other route matches: fixed `'/404'`
+ * path/id, no params, and the options that don't apply to a catch-all (path,
+ * id, caseSensitive, params parsing) omitted.
  */
 export class NotFoundRoute<
   TRegister,

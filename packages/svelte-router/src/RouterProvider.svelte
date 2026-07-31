@@ -12,9 +12,6 @@
     [key: string]: unknown
   }
 
-  // RouterProvider = RouterContextProvider + Matches — mirrors solid-router,
-  // where the context provider is also exported standalone for callers that
-  // render their own tree (e.g. custom shells, testing harnesses).
   let { router, ...rest }: Props = $props()
 </script>
 

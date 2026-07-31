@@ -31,7 +31,7 @@
   setContext(nearestMatchContextKey, nearestMatch)
 
   // onRendered: fires once on first mount, then again when the resolved
-  // location's TSR key changes — mirrors solid OnRendered placement.
+  // location's TSR key changes.
   let firstRender = true
   let prevResolvedKey: any = undefined
   $effect(() => {
