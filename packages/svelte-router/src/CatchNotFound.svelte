@@ -3,7 +3,7 @@
   import { useSelector } from '@tanstack/svelte-store'
   import { useRouter } from './useRouter'
   import { getNotFound } from './not-found'
-  import CatchBoundary from './CatchBoundary.svelte'
+  import ErrorBubbler from './ErrorBubbler.svelte'
   import type { NotFoundError } from '@tanstack/router-core'
 
   type Props = {
@@ -18,23 +18,29 @@
   const locationSel = useSelector(router.stores.location)
   const statusSel = useSelector(router.stores.status)
 
-  function getResetKey() {
-    return `not-found-${locationSel.current.pathname}-${statusSel.current}`
-  }
+  const resetKey = $derived(
+    `not-found-${locationSel.current.pathname}-${statusSel.current}`,
+  )
 
-  function handleCatch(error: Error) {
+  function onerror(error: unknown) {
     const notFoundError = getNotFound(error)
-    if (notFoundError) {
-      onCatch?.(notFoundError)
-    } else {
-      throw error
-    }
+    if (notFoundError) onCatch?.(notFoundError)
   }
 </script>
 
-<CatchBoundary
-  getResetKey={getResetKey}
-  onCatch={handleCatch}
->
-  {#if children}{@render children()}{/if}
-</CatchBoundary>
+<!-- When the reset key changes, the boundary remounts its children. -->
+{#key resetKey}
+  <svelte:boundary {onerror}>
+    {#if children}{@render children()}{/if}
+
+    {#snippet failed(error)}
+      {@const notFoundError = getNotFound(error)}
+      {#if notFoundError}
+        {#if fallback}{@render fallback(notFoundError)}{/if}
+      {:else}
+        <!-- Not a notFound: rethrow to the surrounding boundary. -->
+        <ErrorBubbler {error} />
+      {/if}
+    {/snippet}
+  </svelte:boundary>
+{/key}

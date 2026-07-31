@@ -23,7 +23,8 @@ export type ValidateLinkOptions<
   TRouter extends AnyRouter = RegisteredRouter,
   TOptions = unknown,
   TDefaultFrom extends string = string,
-  _TComp = 'a',
+  // eslint-disable-next-line unused-imports/no-unused-vars -- signature parity with ValidateLinkOptionsArray's forwarding
+  TComp = 'a',
 > = Constrain<
   TOptions,
   LinkOptions<

@@ -12,7 +12,6 @@
   }
 
   let unsubHistory: (() => void) | null = null
-  let prevIsAnyPending = false
 
   onMount(() => {
     if (isServer ?? router.isServer) return
@@ -110,7 +109,6 @@
         router.stores.resolvedLocation.set(router.stores.location.get())
       })
     }
-    prevIsAnyPending = currentIsAnyPending
     prevIsLoading = isLoading
     prevIsPagePending = isPagePending
   })

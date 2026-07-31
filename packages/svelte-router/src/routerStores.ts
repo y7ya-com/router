@@ -15,7 +15,8 @@ import type {
 declare module '@tanstack/router-core' {
   export interface RouterReadableStore<TValue> extends Readable<TValue> {}
 
-  export interface RouterStores<in out TRouteTree extends AnyRoute> {
+  // eslint-disable-next-line unused-imports/no-unused-vars -- carried for consumers that parameterize their stores by route tree
+export interface RouterStores<in out TRouteTree extends AnyRoute> {
     /** Maps each active routeId to the matchId of its child in the match tree. */
     childMatchIdByRouteId: RouterReadableStore<Record<string, string>>
     /** Maps each pending routeId to true for quick lookup. */
