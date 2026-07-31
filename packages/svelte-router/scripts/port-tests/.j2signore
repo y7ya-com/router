@@ -64,3 +64,35 @@ useNavigate::when navigating from /invoices to ./invoiceId and the current route
 # New in router-core 1.171.13.
 renderRouterToStream::request abort during bot wait returns and terminates response stream
 renderRouterToStream::pipeTo rejection aborts writer and terminates response stream
+
+# --- Mistranslated by the compiler (5) --------------------------------------
+# These differ from the entries above: they are not Solid-vs-Svelte semantic
+# differences, they are TRANSLATION DEFECTS. Each generated test asserted
+# nothing useful even when green — Solid APIs were left in place, or a
+# component's output was replaced, or JSX was emitted as `null as any`.
+#
+# Every behaviour below is covered instead by a hand-written TSX test in
+# jsx-svelte/test/parity/untranslatable.test.tsx. Skipping here removes a
+# broken oracle; it does not remove coverage.
+
+# Uses `Solid.createRenderEffect` to observe render ordering. The compiler
+# emitted `_shared.Solid.createRenderEffect` (undefined at runtime) and also
+# replaced the component's `<div>First</div>` body with `<Outlet/>`, so the
+# assertion could never find its own text. Svelte's analogue is `$effect.pre`.
+use-match-outgoing-transition::an outgoing component never observes its own active match disappear
+use-match-outgoing-transition::a persistent observer releases an explicit match only with the destination render
+
+# Drives the Link's `to` from a Solid signal created in the test body; the
+# compiler left `Solid.createSignal` untranslated. In Svelte the equivalent is
+# a `$state` rune inside the component that owns the Link.
+link::updates href when link options change reactively
+
+# The lazily imported component's JSX was emitted as
+# `null as any /* TODO(svelte-port): residual JSX */`, so it rendered nothing
+# and `findByText('Page content')` could never succeed.
+component-preload-retry::a component loads when rendered before preload
+
+# Mocks `solid-js/web` directly (vi.importActual<typeof SolidWeb>) — there is
+# no Svelte equivalent to mock; the test is about Solid's own streaming
+# renderer. Svelte streaming SSR is covered by jsx-svelte/test/ssr.test.tsx.
+renderRouterToStream::request abort during bot wait terminates before rendering starts
