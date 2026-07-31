@@ -1,5 +1,4 @@
-<script lang="ts" generics="TRouter extends AnyRouter = RegisteredRouter">
-  import type { AnyRouter, RegisteredRouter } from '@tanstack/router-core'
+<script lang="ts">
   import type { Component, Snippet } from 'svelte'
   import { useLinkProps } from './useLinkProps.svelte'
   import type { LinkStateProps } from './useLinkProps.svelte'

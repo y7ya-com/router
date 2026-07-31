@@ -17,7 +17,7 @@
   }: Props = $props()
 
   // Use Svelte 5's <svelte:boundary> for error catching.
-  function onerror(error: unknown, reset: () => void) {
+  function onerror(error: unknown, _reset: () => void) {
     const err = error instanceof Error ? error : new Error(String(error))
     onCatch?.(err, { componentStack: '' })
   }

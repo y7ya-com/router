@@ -6,7 +6,6 @@ import type { Component } from 'svelte'
 export const renderRouterToString = ({
   router,
   responseHeaders,
-  children,
 }: {
   router: AnyRouter
   responseHeaders: Headers

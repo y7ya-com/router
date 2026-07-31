@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["svelte", "node"]
+    "types": [
+      "svelte",
+      "node"
+    ]
   },
   "include": [
     "src/**/*.js",
@@ -13,5 +16,8 @@
     "eslint.config.ts",
     "svelte.config.js",
     "vite.config.ts"
+  ],
+  "exclude": [
+    "tests/compiled/**"
   ]
 }
