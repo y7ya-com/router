@@ -251,6 +251,7 @@ export {
   createRouteMask,
   Route,
   RootRoute,
+  NotFoundRoute,
   RouteApi,
   getRouteApi,
 } from './route'
@@ -317,16 +318,27 @@ export type {
 } from './typePrimitives'
 
 export { default as RouterProvider } from './RouterProvider.svelte'
+export { default as RouterContextProvider } from './RouterContextProvider.svelte'
 export { default as Matches } from './Matches.svelte'
 export { default as Match } from './Match.svelte'
 export { default as Outlet } from './Outlet.svelte'
 export { default as Link } from './Link.svelte'
-export { createLink } from './createLink'
+export { createLink, linkOptions } from './createLink'
+export { useLinkProps } from './useLinkProps.svelte'
+export type { UseLinkPropsOptions, LinkStateProps } from './useLinkProps.svelte'
+export type { LinkOptionsFn, LinkOptionsFnOptions } from './createLink'
+export type {
+  ValidateLinkOptions,
+  ValidateLinkOptionsArray,
+} from './typePrimitives'
 export { default as Scripts } from './Scripts.svelte'
 export { default as HeadContent } from './HeadContent.svelte'
 export { default as ScriptOnce } from './ScriptOnce.svelte'
 export { default as Asset } from './Asset.svelte'
 export { default as Await } from './Await.svelte'
+export { useAwaited } from './awaited.svelte'
 export { default as ScrollRestoration } from './ScrollRestoration.svelte'
+export { useElementScrollRestoration } from './scroll-restoration'
+export { useTags } from './headContentUtils'
 
 export { isSnippet, isComponent } from './utils'

@@ -1,7 +1,7 @@
 {
   "name": "@tanstack/svelte-router",
   "version": "0.0.0-experimental",
-  "description": "TanStack Router for Svelte 5 — experimental community port; not an official TanStack release. API mirrors @tanstack/solid-router.",
+  "description": "TanStack Router for Svelte 5 \u2014 experimental community port; not an official TanStack release. API mirrors @tanstack/solid-router.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -46,7 +46,11 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "svelte": "./dist/index.js",
+      "svelte": {
+        "development": "./dist/index.dev.js",
+        "default": "./dist/index.js"
+      },
+      "development": "./dist/index.dev.js",
       "import": "./dist/index.js"
     },
     "./ssr/server": {
