@@ -12,14 +12,49 @@ or github URLs pointing at the sibling distro repos.
 | `packages/svelte-router` | `y7ya-com/svelte-router` | `@tanstack/svelte-router` |
 | `packages/router-generator` | `y7ya-com/router-generator` | `@tanstack/router-generator` |
 | `packages/router-plugin` | `y7ya-com/router-plugin` | `@tanstack/router-plugin` |
+| `packages/svelte-start` | `y7ya-com/svelte-start` | `@tanstack/svelte-start` |
+| `packages/svelte-start-client` | `y7ya-com/svelte-start-client` | `@tanstack/svelte-start-client` |
+| `packages/svelte-start-server` | `y7ya-com/svelte-start-server` | `@tanstack/svelte-start-server` |
+
+All six release **together, under one tag**. A fork dep is rewritten to
+`github:owner/repo#<tag>`, so that tag must exist in every repo the set
+references. Never tag one distro without the others.
 
 End-user install:
 
 ```bash
-pnpm add github:y7ya-com/svelte-router
-pnpm add -D github:y7ya-com/router-plugin
-# router-generator is pulled in transitively as a github dep of router-plugin
+pnpm add github:y7ya-com/svelte-start#v0.0.3-experimental
+pnpm add -D github:y7ya-com/router-plugin#v0.0.3-experimental
+# svelte-router, svelte-start-client/-server and router-generator all come
+# in transitively as github deps
 ```
+
+### Consumers need `blockExoticSubdeps: false`
+
+pnpm 10+ refuses `github:` deps that appear **transitively**:
+
+```
+ERR_PNPM_EXOTIC_SUBDEP  Exotic dependency "@tanstack/svelte-start-client"
+(resolved via git-repository) is not allowed in subdependencies
+```
+
+Since `svelte-start` depends on its siblings by github URL, every consumer hits
+this. The fix goes in **`pnpm-workspace.yaml`**, not `.npmrc` and not the `pnpm`
+field of `package.json` — neither of those is read for this setting on pnpm 11:
+
+```yaml
+# pnpm-workspace.yaml
+blockExoticSubdeps: false
+```
+
+Verified against pnpm 11.18.0.
+
+### `@tanstack/svelte-start` is full-stack — do not bundle it browser-only
+
+It pulls `@tanstack/start-storage-context`, which imports `node:async_hooks`.
+A browser-only build fails with `"AsyncLocalStorage" is not exported by
+"__vite-browser-external"`. That is expected; build client and server
+environments separately, as a real Start app does.
 
 ## One-time setup (do once, before the first release)
 
