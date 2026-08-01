@@ -77,12 +77,19 @@ export function tanstackStart(
                     '@tanstack/svelte-start',
                     '@tanstack/svelte-router',
                     '@tanstack/start-static-server-functions',
+                    '@tanstack/start-client-core',
+                    '@tanstack/start-storage-context',
                   ],
                   // The excluded packages are served raw and import these at
                   // BROWSER time; without pre-including them, vite discovers
                   // them mid-page-load, re-optimizes, and the page mixes two
                   // prebundle generations — two svelte runtimes, and
                   // getContext dies with lifecycle_outside_component.
+                  // Browser-safe leaves only. start-client-core must NOT be
+                  // prebundled: it reaches @tanstack/start-storage-context,
+                  // whose unconditional `node:async_hooks` import becomes
+                  // vite's browser-external stub in a prebundle and throws
+                  // "AsyncLocalStorage is not a constructor" at import time.
                   include: [
                     '@tanstack/router-core',
                     '@tanstack/router-core/isServer',
@@ -90,8 +97,6 @@ export function tanstackStart(
                     '@tanstack/history',
                     '@tanstack/store',
                     '@tanstack/svelte-store',
-                    '@tanstack/start-client-core',
-                    '@tanstack/start-client-core/client',
                     'devalue',
                     'isbot',
                   ],
