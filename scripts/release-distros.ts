@@ -242,7 +242,9 @@ function main(): void {
   }
 
   console.log(`Staging distro packages for ${versionTag}...`)
-  rmSync(STAGING, { recursive: true, force: true })
+  // Do NOT wipe the whole staging root: per-dir restage in stagePackage()
+  // preserves each distro's .git clone. A wholesale rm here was what deleted
+  // them (and made stray git commands resolve to the monorepo).
   mkdirSync(STAGING, { recursive: true })
 
   for (const pkg of PACKAGES) {
