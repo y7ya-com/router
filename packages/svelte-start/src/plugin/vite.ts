@@ -78,6 +78,23 @@ export function tanstackStart(
                     '@tanstack/svelte-router',
                     '@tanstack/start-static-server-functions',
                   ],
+                  // The excluded packages are served raw and import these at
+                  // BROWSER time; without pre-including them, vite discovers
+                  // them mid-page-load, re-optimizes, and the page mixes two
+                  // prebundle generations — two svelte runtimes, and
+                  // getContext dies with lifecycle_outside_component.
+                  include: [
+                    '@tanstack/router-core',
+                    '@tanstack/router-core/isServer',
+                    '@tanstack/router-core/ssr/client',
+                    '@tanstack/history',
+                    '@tanstack/store',
+                    '@tanstack/svelte-store',
+                    '@tanstack/start-client-core',
+                    '@tanstack/start-client-core/client',
+                    'devalue',
+                    'isbot',
+                  ],
                 }
               : undefined,
         }
