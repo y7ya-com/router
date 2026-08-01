@@ -1,4 +1,4 @@
-export { useServerFn } from './useServerFn'
+export { useServerFn } from './useServerFn.js'
 export * from '@tanstack/start-client-core'
 // Explicit re-exports shadow `export *` above so these public-API names are
 // registered on the namespace at link time (via Vite SSR's `defineExport`

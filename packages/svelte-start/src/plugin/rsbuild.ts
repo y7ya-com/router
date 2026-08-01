@@ -2,7 +2,7 @@ import {
   RSBUILD_ENVIRONMENT_NAMES,
   tanStackStartRsbuild,
 } from '@tanstack/start-plugin-core/rsbuild'
-import { svelteStartDefaultEntryPaths } from './shared'
+import { svelteStartDefaultEntryPaths } from './shared.js'
 import type {
   TanStackStartRsbuildInputConfig,
   TanStackStartRsbuildPluginCoreOptions,
