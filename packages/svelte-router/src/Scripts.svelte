@@ -33,10 +33,19 @@
       for (const match of matches) {
         const route = router.looseRoutesById[match.routeId]
         if (!route) continue
-        const assets = manifest.routes[route.id]?.assets
-        if (!assets) continue
-        for (const asset of assets) {
-          if (asset.tag !== 'script') continue
+        const entry = manifest.routes[route.id]
+        if (!entry) continue
+        // Manifest shape differs across start-plugin-core versions: older
+        // cores emit `assets: [{tag, attrs, children}]`, newer ones emit
+        // `scripts: [{attrs}]` (plus preloads/css). Accept both.
+        const fromAssets = (entry.assets ?? [])
+          .filter((a: any) => a.tag === 'script')
+          .map((a: any) => ({ attrs: a.attrs, children: a.children }))
+        const fromScripts = (entry.scripts ?? []).map((sc: any) => ({
+          attrs: sc.attrs ?? sc,
+          children: sc.children,
+        }))
+        for (const asset of [...fromAssets, ...fromScripts]) {
           assetScripts.push({
             tag: 'script',
             attrs: { ...asset.attrs, nonce },
@@ -51,7 +60,15 @@
       serverBufferedScript = (router as any).serverSsr.takeBufferedScripts()
     }
 
-    const all = [...scripts, ...assetScripts]
+    // Dedupe: with file-based route trees, several matches can carry the
+    // same manifest script (e.g. the dev client entry on every route).
+    const seen = new Set<string>()
+    const all = [...scripts, ...assetScripts].filter((t) => {
+      const key = JSON.stringify([(t as any).attrs?.src ?? null, (t as any).children ?? null])
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
     if (serverBufferedScript) all.unshift(serverBufferedScript)
     return all
   })
