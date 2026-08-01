@@ -179,8 +179,21 @@ function stagePackage(spec: PackageSpec, versionTag: string): void {
     )
   }
 
+  // Preserve .git across restaging: the staging dirs double as clones of the
+  // distro repos. Deleting .git once caused git commands run inside them to
+  // walk UP into the monorepo — and push 3.6k tags to the fork by accident.
+  const keepGit = resolve(outDir, '.git')
+  const gitBackup = resolve(STAGING, `.git-keep-${spec.distroName}`)
+  if (existsSync(keepGit)) {
+    rmSync(gitBackup, { recursive: true, force: true })
+    cpSync(keepGit, gitBackup, { recursive: true })
+  }
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
+  if (existsSync(gitBackup)) {
+    cpSync(gitBackup, keepGit, { recursive: true })
+    rmSync(gitBackup, { recursive: true, force: true })
+  }
 
   // Copy dist/, skipping anything a test run may have written in there.
   // A vitest dep-optimisation cache under dist/node_modules once swept 47k
