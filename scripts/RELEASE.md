@@ -29,25 +29,27 @@ pnpm add -D github:y7ya-com/router-plugin#v0.0.3-experimental
 # in transitively as github deps
 ```
 
-### Consumers need `blockExoticSubdeps: false`
+### Consumers: use npm or bun, not pnpm
 
-pnpm 10+ refuses `github:` deps that appear **transitively**:
+`svelte-start` depends on its siblings by github URL, so those are **transitive**
+git deps. Support differs:
 
-```
-ERR_PNPM_EXOTIC_SUBDEP  Exotic dependency "@tanstack/svelte-start-client"
-(resolved via git-repository) is not allowed in subdependencies
-```
+| Client | Result | Config needed |
+| --- | --- | --- |
+| npm 11.16 | works | none |
+| bun 1.3.9 | works | none |
+| pnpm 11.18 | **fails** `ERR_PNPM_EXOTIC_SUBDEP` | `blockExoticSubdeps: false` |
 
-Since `svelte-start` depends on its siblings by github URL, every consumer hits
-this. The fix goes in **`pnpm-workspace.yaml`**, not `.npmrc` and not the `pnpm`
-field of `package.json` — neither of those is read for this setting on pnpm 11:
+Recommend npm (or bun) to consumers and the problem disappears. If someone must
+use pnpm, the setting goes in **`pnpm-workspace.yaml`** — `.npmrc` and the `pnpm`
+field of `package.json` are *not* read for it on pnpm 11:
 
 ```yaml
-# pnpm-workspace.yaml
 blockExoticSubdeps: false
 ```
 
-Verified against pnpm 11.18.0.
+The monorepo itself stays on pnpm — it needs `workspace:` and the existing
+tooling. This only concerns downstream apps installing the distros.
 
 ### `@tanstack/svelte-start` is full-stack — do not bundle it browser-only
 
