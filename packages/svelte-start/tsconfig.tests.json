@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["tests/**/*.tsx"],
+  "compilerOptions": {
+    "paths": {
+      "@tanstack/svelte-router": ["../svelte-router/src/index.ts"],
+      "@tanstack/svelte-router/ssr/server": [
+        "../svelte-router/src/ssr/server.ts"
+      ],
+      "@tanstack/svelte-router/ssr/client": [
+        "../svelte-router/src/ssr/client.ts"
+      ],
+      "@tanstack/svelte-router-devtools": [
+        "../svelte-router-devtools/src/index.ts"
+      ],
+      "@tanstack/svelte-start": ["./src/index.ts"],
+      "@tanstack/svelte-start-client": ["../svelte-start-client/src/index.ts"],
+      "@tanstack/svelte-start-server": ["../svelte-start-server/src/index.ts"]
+    }
+  }
+}
