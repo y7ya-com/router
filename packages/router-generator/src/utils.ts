@@ -11,6 +11,60 @@ import type {
 } from './types'
 
 /**
+ * SFC-style frameworks (Vue, Svelte) put the component as the file's default
+ * export and don't allow a sibling `Route` named export — so the generator
+ * treats them differently when wiring components into the route tree:
+ *   - use `default` instead of `Route` / `component` as the export name
+ *   - keep the file extension on the import path (Vite/Svelte plugins need it)
+ *   - skip the `transform()` step that scans for named exports
+ *
+ * Svelte-only escape hatch: a `.svelte` file can ALSO expose a `Route` named
+ * export from its `<script module>` block (the Svelte 5 module-script primitive
+ * compiles to a real ES module export). When that's present, the generator
+ * imports the `Route` from the SFC rather than synthesising an empty one —
+ * see `extractSvelteModuleScript()` and `RouteNode.hasNamedRouteExport`.
+ */
+export function isSingleExportRouteFile(filePath: string): boolean {
+  return filePath.endsWith('.vue') || filePath.endsWith('.svelte')
+}
+
+/**
+ * Extract the `<script module>` block from a Svelte SFC source string.
+ *
+ * Returns null if the file has no module-level script (i.e. only an instance
+ * `<script>` and template). The matched block's content is what the generator
+ * runs through `transform()` to find an optional `export const Route = ...`.
+ *
+ * The `module` attribute can appear in any order with `lang`, `context`, etc.,
+ * and the script can be empty. We deliberately scan only for the FIRST module
+ * script — Svelte's compiler errors if you write more than one anyway.
+ */
+export function extractSvelteModuleScript(source: string): {
+  content: string
+  contentStart: number
+  contentEnd: number
+} | null {
+  // <script ... module ...>...</script>
+  // - The module attribute is a bare word (`module`) anywhere in the attrs.
+  // - Tolerates `<script module>`, `<script module lang="ts">`,
+  //   `<script lang="ts" module>`, `<script context="module">` (Svelte 4 form).
+  const moduleScriptRe =
+    /<script\b([^>]*\bmodule\b[^>]*|[^>]*\bcontext\s*=\s*['"]module['"][^>]*)>([\s\S]*?)<\/script>/i
+  const match = moduleScriptRe.exec(source)
+  if (!match) return null
+
+  const fullStart = match.index
+  const openTagEnd = source.indexOf('>', fullStart) + 1
+  const contentStart = openTagEnd
+  const contentEnd = contentStart + match[2]!.length
+  return {
+    content: match[2]!,
+    contentStart,
+    contentEnd,
+  }
+}
+
+/**
  * Prefix map for O(1) parent route lookups.
  * Maps each route path prefix to the route node that owns that prefix.
  * Enables finding longest matching parent without linear search.
@@ -1271,15 +1325,14 @@ function getImportPath(
   node: RouteNode,
   config: Config,
   generatedRouteTreePath: string,
+  preserveExtension = false,
 ): string {
+  const rel = path.relative(
+    path.dirname(generatedRouteTreePath),
+    path.resolve(config.routesDirectory, node.filePath),
+  )
   return replaceBackslash(
-    removeExt(
-      path.relative(
-        path.dirname(generatedRouteTreePath),
-        path.resolve(config.routesDirectory, node.filePath),
-      ),
-      config.addExtensions,
-    ),
+    preserveExtension ? rel : removeExt(rel, config.addExtensions),
   )
 }
 
@@ -1289,24 +1342,42 @@ export function getImportForRouteNode(
   generatedRouteTreePath: string,
   root: string,
 ): ImportDeclaration {
+  // `.svelte` files MUST keep their extension on imports — there's no resolver
+  // fallback the way TS has for `.ts`/`.tsx`. The Vite + svelte plugin combo
+  // resolves `import { Route } from './foo.svelte'` correctly; stripping the
+  // extension breaks both runtime resolution and svelte-check's typechecker.
+  const preserveExtension = node.filePath.endsWith('.svelte')
+
   let source = ''
   if (config.importRoutesUsingAbsolutePaths) {
+    const abs = path.resolve(root, config.routesDirectory, node.filePath)
     source = replaceBackslash(
-      removeExt(
-        path.resolve(root, config.routesDirectory, node.filePath),
-        config.addExtensions,
-      ),
+      preserveExtension ? abs : removeExt(abs, config.addExtensions),
     )
   } else {
-    source = `./${getImportPath(node, config, generatedRouteTreePath)}`
+    source = `./${getImportPath(node, config, generatedRouteTreePath, preserveExtension)}`
+  }
+  const specifiers = [
+    {
+      imported: 'Route',
+      local: `${node.variableName}RouteImport`,
+    },
+  ]
+  // For `.svelte` files with a colocated `<script module> export const Route`,
+  // also pull in the default-exported component synchronously. The component
+  // emit downstream uses `${variableName}RouteComponent` as a sync reference
+  // (instead of `lazyRouteComponent(() => import(...))`), which avoids the
+  // bundler's "same file is both static and dynamic import" warning and lets
+  // the bundler put the route in the main chunk consistent with how it
+  // already has to treat the Route options.
+  if (node.hasNamedRouteExport && node.filePath.endsWith('.svelte')) {
+    specifiers.push({
+      imported: 'default',
+      local: `${node.variableName}RouteComponent`,
+    })
   }
   return {
     source,
-    specifiers: [
-      {
-        imported: 'Route',
-        local: `${node.variableName}RouteImport`,
-      },
-    ],
+    specifiers,
   } satisfies ImportDeclaration
 }

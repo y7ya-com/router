@@ -1,4 +1,3 @@
-import { isRunnableDevEnvironment } from 'vite'
 import { NodeRequest, sendNodeResponse } from 'srvx/node'
 import { ENTRY_POINTS, VITE_ENVIRONMENT_NAMES } from '../../constants'
 import {
@@ -6,8 +5,25 @@ import {
   collectDevStyles,
   normalizeCssModuleCacheKey,
 } from './dev-styles'
-import type { Connect, DevEnvironment, PluginOption } from 'vite'
+import type {
+  Connect,
+  DevEnvironment,
+  PluginOption,
+  RunnableDevEnvironment,
+} from 'vite'
 import type { GetConfigFn } from '../../types'
+
+// Duck-typed instead of vite's `isRunnableDevEnvironment`, an `instanceof`
+// check that fails when the dev server was created by a different copy of
+// vite than the one this plugin resolves (e.g. differing peer variants).
+function isRunnableDevEnvironment(
+  env: DevEnvironment,
+): env is RunnableDevEnvironment {
+  return (
+    typeof (env as Partial<RunnableDevEnvironment>).runner?.import ===
+    'function'
+  )
+}
 
 export function devServerPlugin({
   getConfig: _getConfig,

@@ -13,7 +13,10 @@ export function normalizeViteClientChunk(
     imports: chunk.imports,
     dynamicImports: chunk.dynamicImports,
     css: Array.from(chunk.viteMetadata?.importedCss ?? []),
-    routeFilePaths: getRouteFilePathsFromModuleIds(chunk.moduleIds),
+    routeFilePaths: getRouteFilePathsFromModuleIds(
+      chunk.moduleIds,
+      chunk.isDynamicEntry ? chunk.facadeModuleId : null,
+    ),
     hydrationIds: getHydrationIdsFromModuleIds(chunk.moduleIds),
   }
 }
@@ -85,9 +88,24 @@ export function normalizeViteClientBuild(
   }
 }
 
-export function getRouteFilePathsFromModuleIds(moduleIds: Array<string>) {
+/**
+ * Route files are recognised by the `tsr-split` query the code splitter adds.
+ * Frameworks whose route files are themselves lazily imported components
+ * (e.g. `.svelte` files) produce a dynamic entry chunk instead, so its facade
+ * module is also a candidate. Candidates that are not route files are never
+ * looked up by the manifest builder.
+ */
+export function getRouteFilePathsFromModuleIds(
+  moduleIds: Array<string>,
+  dynamicEntryModuleId?: string | null,
+) {
   let routeFilePaths: Array<string> | undefined
   let seenRouteFilePaths: Set<string> | undefined
+
+  if (dynamicEntryModuleId && !dynamicEntryModuleId.includes('?')) {
+    routeFilePaths = [dynamicEntryModuleId]
+    seenRouteFilePaths = new Set(routeFilePaths)
+  }
 
   for (const moduleId of moduleIds) {
     const queryIndex = moduleId.indexOf('?')

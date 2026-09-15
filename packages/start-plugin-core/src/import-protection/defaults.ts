@@ -6,12 +6,12 @@ export interface DefaultImportProtectionRules {
   server: Required<ImportProtectionEnvRules>
 }
 
-const frameworks = ['react', 'solid', 'vue'] as const
+const frameworks = ['react', 'solid', 'vue', 'svelte'] as const
 
 /**
  * Returns the default import protection rules.
  *
- * All three framework variants are always included so that, e.g., a React
+ * All framework variants are always included so that, e.g., a React
  * project also denies `@tanstack/solid-start/server` imports.
  */
 export function getDefaultImportProtectionRules(): DefaultImportProtectionRules {

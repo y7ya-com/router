@@ -28,8 +28,14 @@ function getPrerenderablePaths(
     // if routePath contains $ it is dynamic
     if (route.routePath.includes('$')) continue
 
-    // filter routes that do not have a component, i.e api routes
-    if (!route.createFileRouteProps?.has('component')) continue
+    // filter routes that do not have a component, i.e api routes.
+    // A single-file component route file is itself the component.
+    if (
+      !route.createFileRouteProps?.has('component') &&
+      !/\.(vue|svelte)$/.test(route.filePath)
+    ) {
+      continue
+    }
 
     paths.add(inferFullPath(route))
   }

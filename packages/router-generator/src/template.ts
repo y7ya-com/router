@@ -216,6 +216,87 @@ export function getTargetTemplate(config: Config): TargetTemplate {
           },
         },
       }
+    case 'svelte':
+      // Svelte route files are `.svelte` SFCs. The component is the file's
+      // default export; route options (loader / beforeLoad / errorComponent /
+      // etc.) are colocated in a `<script module>` block via the named
+      // `Route` export. Svelte 5's `<script module>` compiles to real ES
+      // module exports — the generator imports `Route` from the SFC the same
+      // way React/Solid adapters import from `.tsx` files. See
+      // `extractSvelteModuleScript` in utils.ts. SFCs that omit `<script
+      // module>` still work: the generator synthesises an empty Route inline.
+      return {
+        fullPkg: '@tanstack/svelte-router',
+        subPkg: 'svelte-router',
+        rootRoute: {
+          template: () =>
+            [
+              '<script module lang="ts">\n',
+              '%%tsrImports%%\n',
+              '\n',
+              '  %%tsrExportStart%%{\n',
+              '    // beforeLoad: ({ context }) => { ... },\n',
+              '  }%%tsrExportEnd%%\n',
+              '</script>\n\n',
+              '<script lang="ts">\n',
+              '  import { Outlet } from "@tanstack/svelte-router";\n',
+              '</script>\n\n',
+              '<div>Hello "%%tsrPath%%"!</div>\n',
+              '<Outlet />\n',
+            ].join(''),
+          imports: {
+            tsrImports: () =>
+              '  import { createRootRoute } from "@tanstack/svelte-router";',
+            tsrExportStart: () => 'export const Route = createRootRoute()(',
+            tsrExportEnd: () => ');',
+          },
+        },
+        route: {
+          template: () =>
+            [
+              '<script module lang="ts">\n',
+              '%%tsrImports%%\n',
+              '\n',
+              '  %%tsrExportStart%%{\n',
+              '    // loader: ({ params }) => ...,\n',
+              '    // errorComponent: ({ error }) => `Failed: ${error.message}`,\n',
+              '  }%%tsrExportEnd%%\n',
+              '</script>\n\n',
+              '<script lang="ts">\n',
+              '</script>\n\n',
+              '<div>Hello "%%tsrPath%%"!</div>\n',
+            ].join(''),
+          imports: {
+            tsrImports: () =>
+              '  import { createFileRoute } from "@tanstack/svelte-router";',
+            tsrExportStart: () =>
+              `export const Route = createFileRoute('%%tsrPath%%')(`,
+            tsrExportEnd: () => ');',
+          },
+        },
+        lazyRoute: {
+          template: () =>
+            [
+              '<script module lang="ts">\n',
+              '%%tsrImports%%\n',
+              '\n',
+              '  %%tsrExportStart%%{\n',
+              '    // component: MyComponent,  (defaults to this file)\n',
+              '  }%%tsrExportEnd%%\n',
+              '</script>\n\n',
+              '<script lang="ts">\n',
+              '</script>\n\n',
+              '<div>Hello "%%tsrPath%%"!</div>\n',
+            ].join(''),
+          imports: {
+            tsrImports: () =>
+              '  import { createLazyFileRoute } from "@tanstack/svelte-router";',
+            tsrExportStart: () =>
+              `export const Route = createLazyFileRoute('%%tsrPath%%')(`,
+            tsrExportEnd: () => ');',
+          },
+        },
+      }
     default:
       throw new Error(`router-generator: Unknown target type: ${target}`)
   }

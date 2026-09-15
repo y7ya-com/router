@@ -36,7 +36,12 @@ import type {
   GenerateFunctionIdFnOptional,
   ServerFn,
 } from '../../start-compiler/types'
-import type { Environment, EnvironmentModuleNode, PluginOption } from 'vite'
+import type {
+  Environment,
+  EnvironmentModuleNode,
+  Plugin,
+  PluginOption,
+} from 'vite'
 
 // Re-export from shared constants for backwards compatibility
 export { SERVER_FN_LOOKUP }
@@ -59,6 +64,11 @@ type ViteModuleLoadOptions = {
   load: (options: { id: string }) => Promise<{ code?: string | null } | null>
   error: (message: string) => never
 }
+
+type ServerFnTransformHandler = Extract<
+  NonNullable<Plugin['transform']>,
+  { handler: unknown }
+>['handler']
 
 async function loadViteModuleFromEnvironment(
   environment: Environment,
@@ -284,7 +294,83 @@ export function startCompilerPlugin(
       compilerTransforms,
       compilerPlugins,
     })
-    return {
+    const compileServerFns: ServerFnTransformHandler = async function (
+      code,
+      id,
+    ) {
+      let compiler = compilers.get(this.environment.name)
+
+      if (!compiler) {
+        // Default to 'dev' mode for unknown environments (conservative: no caching)
+        const mode = this.environment.mode === 'build' ? 'build' : 'dev'
+
+        compiler = createStartCompiler({
+          env: environment.type,
+          envName: environment.name,
+          root,
+          mode,
+          framework: opts.framework,
+          providerEnvName: opts.providerEnvName,
+          generateFunctionId: opts.generateFunctionId,
+          compilerTransforms,
+          compilerPlugins,
+          serverFnProviderModuleDirectives,
+          onServerFnsById,
+          getKnownServerFns: () => serverFnsById,
+          encodeModuleSpecifierInDev:
+            mode === 'dev'
+              ? createViteDevServerFnModuleSpecifierEncoder(root)
+              : undefined,
+          loadModule: async (id: string) => {
+            const code = await loadViteModuleFromEnvironment(
+              this.environment,
+              id,
+              {
+                load: (options) => this.load(options),
+                error: (message) => this.error(message),
+                devId: appendIdQueryFlag(id, SERVER_FN_LOOKUP),
+              },
+            )
+            if (code !== undefined) {
+              compiler!.ingestModule({ code, id })
+            }
+          },
+
+          resolveId: async (source: string, importer?: string) => {
+            const r = await this.resolve(source, importer)
+
+            if (r) {
+              if (!r.external) {
+                // Keep the resolved ID intact because it is passed back to
+                // Vite's load hook. Virtual-module prefixes and queries are
+                // part of that load identity, not compiler-only metadata.
+                return r.id
+              }
+            }
+
+            return null
+          },
+        })
+
+        compilers.set(this.environment.name, compiler)
+      }
+
+      // Detect which kinds are present in this file before parsing
+      const detectedKinds = detectKindsInCode(code, environment.type, {
+        compilerTransforms,
+      })
+
+      const result = await compiler.compile({
+        id,
+        code,
+        detectedKinds,
+        warn: (message) => this.warn(message),
+      })
+
+      return result
+    }
+
+    const plugin: Plugin = {
       name: `tanstack-start-core::server-fn:${environment.name}`,
       enforce: 'pre',
       applyToEnvironment(env) {
@@ -321,78 +407,7 @@ export function startCompilerPlugin(
             include: transformCodeFilter,
           },
         },
-        async handler(code, id) {
-          let compiler = compilers.get(this.environment.name)
-
-          if (!compiler) {
-            // Default to 'dev' mode for unknown environments (conservative: no caching)
-            const mode = this.environment.mode === 'build' ? 'build' : 'dev'
-
-            compiler = createStartCompiler({
-              env: environment.type,
-              envName: environment.name,
-              root,
-              mode,
-              framework: opts.framework,
-              providerEnvName: opts.providerEnvName,
-              generateFunctionId: opts.generateFunctionId,
-              compilerTransforms,
-              compilerPlugins,
-              serverFnProviderModuleDirectives,
-              onServerFnsById,
-              getKnownServerFns: () => serverFnsById,
-              encodeModuleSpecifierInDev:
-                mode === 'dev'
-                  ? createViteDevServerFnModuleSpecifierEncoder(root)
-                  : undefined,
-              loadModule: async (id: string) => {
-                const code = await loadViteModuleFromEnvironment(
-                  this.environment,
-                  id,
-                  {
-                    load: (options) => this.load(options),
-                    error: (message) => this.error(message),
-                    devId: appendIdQueryFlag(id, SERVER_FN_LOOKUP),
-                  },
-                )
-                if (code !== undefined) {
-                  compiler!.ingestModule({ code, id })
-                }
-              },
-
-              resolveId: async (source: string, importer?: string) => {
-                const r = await this.resolve(source, importer)
-
-                if (r) {
-                  if (!r.external) {
-                    // Keep the resolved ID intact because it is passed back to
-                    // Vite's load hook. Virtual-module prefixes and queries are
-                    // part of that load identity, not compiler-only metadata.
-                    return r.id
-                  }
-                }
-
-                return null
-              },
-            })
-
-            compilers.set(this.environment.name, compiler)
-          }
-
-          // Detect which kinds are present in this file before parsing
-          const detectedKinds = detectKindsInCode(code, environment.type, {
-            compilerTransforms,
-          })
-
-          const result = await compiler.compile({
-            id,
-            code,
-            detectedKinds,
-            warn: (message) => this.warn(message),
-          })
-
-          return result
-        },
+        handler: compileServerFns,
       },
 
       hotUpdate(ctx) {
@@ -483,6 +498,40 @@ export function startCompilerPlugin(
         return finishHotUpdate()
       },
     }
+
+    if (opts.framework !== 'svelte') {
+      return plugin
+    }
+
+    // A `.svelte` file is one module that the Svelte plugin compiles to
+    // JavaScript, so server functions declared in its scripts can only be
+    // compiled after that step. Vue avoids this because its SFC scripts are
+    // separate `lang.ts` modules that the pre transform above already sees.
+    return [
+      plugin,
+      {
+        name: `tanstack-start-core::server-fn:${environment.name}:svelte`,
+        enforce: 'post',
+        applyToEnvironment(env) {
+          return env.name === environment.name
+        },
+        transform: {
+          filter: {
+            id: {
+              exclude: [
+                new RegExp(`${SERVER_FN_LOOKUP}$`),
+                /[?&]svelte&type=style/,
+              ],
+              include: [/\.svelte($|\?)/],
+            },
+            code: {
+              include: transformCodeFilter,
+            },
+          },
+          handler: compileServerFns,
+        },
+      },
+    ]
   }
 
   return [

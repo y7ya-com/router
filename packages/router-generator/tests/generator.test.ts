@@ -202,6 +202,10 @@ function rewriteConfigByFolderName(folderName: string, config: Config) {
     case 'add-extensions-custom':
       config.addExtensions = '.js'
       break
+    case 'svelte-colocated-root':
+    case 'svelte-lazy':
+      config.target = 'svelte'
+      break
     case 'virtual-nested-layouts-with-virtual-route':
       {
         // Test case for nested layouts with a virtual file-less route in between.

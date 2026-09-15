@@ -119,6 +119,23 @@ describe('getRouteFilePathsFromModuleIds', () => {
       ]),
     ).toEqual([])
   })
+  test('includes the facade module of a lazily imported route file', () => {
+    expect(
+      getRouteFilePathsFromModuleIds(
+        ['/routes/posts.svelte', '/components/Card.svelte'],
+        '/routes/posts.svelte',
+      ),
+    ).toEqual(['/routes/posts.svelte'])
+  })
+
+  test('ignores a facade module that carries a query', () => {
+    expect(
+      getRouteFilePathsFromModuleIds(
+        ['/routes/posts.tsx?tsr-split=component'],
+        '/routes/posts.tsx?tsr-split=component',
+      ),
+    ).toEqual(['/routes/posts.tsx'])
+  })
 })
 
 describe('appendUniqueStrings', () => {
@@ -175,6 +192,28 @@ describe('scanClientChunks', () => {
     )
 
     expect(chunk.hydrationIds).toEqual(['posts_widget'])
+  })
+
+  test('maps a dynamic entry chunk to its facade route file', () => {
+    const lazyChunk = normalizeTestChunk({
+      ...makeChunk({
+        fileName: 'posts.js',
+        moduleIds: ['/routes/posts.svelte'],
+      }),
+      isDynamicEntry: true,
+      facadeModuleId: '/routes/posts.svelte',
+    })
+    const entryChunk = normalizeTestChunk({
+      ...makeChunk({
+        fileName: 'entry.js',
+        moduleIds: ['/routes/__root.svelte'],
+        isEntry: true,
+      }),
+      facadeModuleId: '/routes/__root.svelte',
+    })
+
+    expect(lazyChunk.routeFilePaths).toEqual(['/routes/posts.svelte'])
+    expect(entryChunk.routeFilePaths).toEqual([])
   })
 
   test('throws when no entry chunk exists', () => {

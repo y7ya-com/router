@@ -59,10 +59,12 @@ describe('getMarkerSpecifiers', () => {
   test('includes all frameworks', () => {
     const markers = getMarkerSpecifiers()
 
-    expect(markers.serverOnly.length).toBe(3)
-    expect(markers.clientOnly.length).toBe(3)
+    expect(markers.serverOnly.length).toBe(4)
+    expect(markers.clientOnly.length).toBe(4)
 
     expect(markers.serverOnly).toContain('@tanstack/solid-start/server-only')
     expect(markers.clientOnly).toContain('@tanstack/vue-start/client-only')
+    expect(markers.serverOnly).toContain('@tanstack/svelte-start/server-only')
+    expect(markers.clientOnly).toContain('@tanstack/svelte-start/client-only')
   })
 })
