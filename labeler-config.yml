@@ -97,6 +97,24 @@
 'package: start-storage-context':
   - changed-files:
       - any-glob-to-any-file: 'packages/start-storage-context/**/*'
+'package: svelte-router':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/svelte-router/**/*'
+'package: svelte-router-devtools':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/svelte-router-devtools/**/*'
+'package: svelte-router-ssr-query':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/svelte-router-ssr-query/**/*'
+'package: svelte-start':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/svelte-start/**/*'
+'package: svelte-start-client':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/svelte-start-client/**/*'
+'package: svelte-start-server':
+  - changed-files:
+      - any-glob-to-any-file: 'packages/svelte-start-server/**/*'
 'package: valibot-adapter':
   - changed-files:
       - any-glob-to-any-file: 'packages/valibot-adapter/**/*'

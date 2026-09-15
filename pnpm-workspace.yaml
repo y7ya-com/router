@@ -19,6 +19,7 @@ packages:
   - 'examples/react/*'
   - 'examples/solid/*'
   - 'examples/vue/*'
+  - 'examples/svelte/*'
   - 'examples/react/router-monorepo-react-query/packages/*'
   - 'examples/react/router-monorepo-simple/packages/*'
   - 'examples/react/router-monorepo-simple-lazy/packages/*'
@@ -26,9 +27,11 @@ packages:
   - 'e2e/react-router/*'
   - 'e2e/solid-router/*'
   - 'e2e/vue-router/*'
+  - 'e2e/svelte-router/*'
   - 'e2e/react-start/*'
   - 'e2e/solid-start/*'
   - 'e2e/vue-start/*'
+  - 'e2e/svelte-start/*'
   - 'e2e/eslint-plugin-start'
 
 catalog:
@@ -133,6 +136,9 @@ allowBuilds:
   nx: true
   unrs-resolver: false # not directly required for build
   esbuild: true
+
+  # @rsbuild/plugin-svelte
+  svelte-preprocess: false # postinstall only echoes a reminder
 
   # @clerk/tanstack-start-adapter
   '@clerk/shared': false # optional auth integration, not required for build

@@ -94,3 +94,6 @@ vite.config.ts.timestamp_*
 
 # local memory flame profiles
 benchmarks/memory/**/.profiles/
+
+# svelte-package build cache
+.svelte-kit/
