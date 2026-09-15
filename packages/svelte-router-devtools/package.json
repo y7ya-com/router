@@ -1,0 +1,87 @@
+{
+  "name": "@tanstack/svelte-router-devtools",
+  "version": "0.0.0",
+  "description": "Modern and scalable routing for Svelte applications",
+  "license": "MIT",
+  "author": "Tanner Linsley",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TanStack/router.git",
+    "directory": "packages/svelte-router-devtools"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/tannerlinsley"
+  },
+  "keywords": [
+    "tanstack",
+    "svelte",
+    "router",
+    "devtools"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "test:eslint": "eslint",
+    "test:types": "svelte-check --tsconfig ./tsconfig.svelte-check.json && pnpm run \"/^test:types:ts[0-9]{2}$/\"",
+    "test:types:ts56": "node ../../node_modules/typescript56/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts57": "node ../../node_modules/typescript57/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts58": "node ../../node_modules/typescript58/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts59": "node ../../node_modules/typescript59/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts60": "tsc6 --noEmit -p tsconfig.tests.json",
+    "test:types:ts70": "tsc --noEmit -p tsconfig.tests.json",
+    "test:unit": "vitest",
+    "build": "svelte-package --input ./src --output ./dist",
+    "test:build": "publint --strict && attw --ignore-rules no-resolution internal-resolution-error --pack ."
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "svelte": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "@tanstack/router-devtools-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/router-core": "workspace:^",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@sveltejs/package": "^2.3.7",
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@testing-library/svelte": "^5.2.4",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint-plugin-svelte": "^3.22.0",
+    "jsdom": "catalog:",
+    "jsx-svelte": "^0.1.0",
+    "publint": "catalog:",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "*",
+    "vitest": "catalog:"
+  },
+  "homepage": "https://tanstack.com/router",
+  "sideEffects": false,
+  "peerDependenciesMeta": {
+    "@tanstack/router-core": {
+      "optional": true
+    }
+  }
+}
