@@ -128,6 +128,26 @@ export const Route = createRootRoute({
 })
 ```
 
+# Svelte
+
+Svelte components cannot render `<html>`, `<head>` or `<body>`. With SSR, the Svelte render handlers build the document shell and already render `<HeadContent />` into its `<head>`, so the root route component only renders the app (a second `<HeadContent />` renders nothing). Attributes for `<html>` and `<body>` come from the root route's `htmlAttrs` and `bodyAttrs` options:
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRoute } from '@tanstack/svelte-router'
+
+  export const Route = createRootRoute({
+    htmlAttrs: { lang: 'en' },
+  })
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
 <!-- ::end:framework -->
 
 ### Single-Page Applications
@@ -163,6 +183,26 @@ const rootRoute = createRootRoute({
       <Outlet />
     </>
   ),
+})
+```
+
+# Svelte
+
+```svelte title="src/RootComponent.svelte"
+<script lang="ts">
+  import { HeadContent, Outlet } from '@tanstack/svelte-router'
+</script>
+
+<HeadContent />
+<Outlet />
+```
+
+```ts
+import { createRootRoute } from '@tanstack/svelte-router'
+import RootComponent from './RootComponent.svelte'
+
+const rootRoute = createRootRoute({
+  component: RootComponent,
 })
 ```
 
@@ -229,6 +269,30 @@ export const Route = createRootRoute('/')({
 })
 ```
 
+# Svelte
+
+With SSR, the document built by the Svelte render handlers already renders `<Scripts />` in `<body>`, after `<div id="app">`, so the root route component does not render it:
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRoute } from '@tanstack/svelte-router'
+
+  export const Route = createRootRoute({
+    scripts: () => [
+      {
+        children: 'console.log("Hello, world!")',
+      },
+    ],
+  })
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
 <!-- ::end:framework -->
 
 ## Inline Scripts with ScriptOnce
@@ -285,6 +349,30 @@ function ThemeProvider({ children }) {
     </>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/components/ThemeProvider.svelte"
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+  import { ScriptOnce } from '@tanstack/svelte-router'
+
+  let { children }: { children: Snippet } = $props()
+
+  const themeScript = `(function() {
+    try {
+      const theme = localStorage.getItem('theme') || 'auto';
+      const resolved = theme === 'auto'
+        ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : theme;
+      document.documentElement.classList.add(resolved);
+    } catch (e) {}
+  })();`
+</script>
+
+<ScriptOnce children={themeScript} />
+{@render children()}
 ```
 
 <!-- ::end:framework -->

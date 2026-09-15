@@ -8,6 +8,7 @@ To use file-based routing with **Rspack** or **Rsbuild**, you'll need to install
 
 react: @tanstack/router-plugin
 solid: @tanstack/router-plugin
+svelte: @tanstack/router-plugin
 
 <!-- ::end:tabs -->
 
@@ -63,6 +64,23 @@ export default defineConfig({
 ```
 
 Or, you can clone our [Quickstart Rspack/Rsbuild example](https://github.com/TanStack/router/tree/main/examples/solid/quickstart-rspack-file-based) and get started.
+
+# Svelte
+
+```ts title="rsbuild.config.ts"
+import { defineConfig } from '@rsbuild/core'
+import { pluginSvelte } from '@rsbuild/plugin-svelte'
+import { tanstackRouter } from '@tanstack/router-plugin/rspack'
+
+export default defineConfig({
+  plugins: [pluginSvelte()],
+  tools: {
+    rspack: {
+      plugins: [tanstackRouter({ target: 'svelte', autoCodeSplitting: true })],
+    },
+  },
+})
+```
 
 <!-- ::end:framework -->
 

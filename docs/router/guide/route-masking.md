@@ -135,6 +135,26 @@ const router = createRouter({
 })
 ```
 
+# Svelte
+
+```ts
+import { createRouteMask } from '@tanstack/svelte-router'
+
+const photoModalToPhotoMask = createRouteMask({
+  routeTree,
+  from: '/photos/$photoId/modal',
+  to: '/photos/$photoId',
+  params: (prev) => ({
+    photoId: prev.photoId,
+  }),
+})
+
+const router = createRouter({
+  routeTree,
+  routeMasks: [photoModalToPhotoMask],
+})
+```
+
 <!-- ::end:framework -->
 
 When creating a route mask, you'll need to pass 1 argument with at least:

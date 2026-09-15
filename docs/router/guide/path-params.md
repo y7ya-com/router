@@ -41,6 +41,20 @@ export const Route = createFileRoute('/posts/$postId')({
 })
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts.$postId.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/$postId')({
+    loader: async ({ params }) => {
+      return fetchPost(params.postId)
+    },
+  })
+</script>
+```
+
 <!-- ::end:framework -->
 
 ## Path Params can be used by child routes
@@ -101,6 +115,22 @@ function PostComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts.$postId.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/$postId')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+</script>
+
+<div>Post {params.current.postId}</div>
+```
+
 <!-- ::end:framework -->
 
 > 🧠 Quick tip: If your component is code-split, you can use the [getRouteApi function](./code-splitting.md#manually-accessing-route-apis-in-other-files-with-the-getrouteapi-helper) to avoid having to import the `Route` configuration to get access to the typed `useParams()` hook.
@@ -127,6 +157,18 @@ function PostComponent() {
   const params = useParams({ strict: false })
   return <div>Post {params().postId}</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/components/PostComponent.svelte"
+<script lang="ts">
+  import { useParams } from '@tanstack/svelte-router'
+
+  const params = useParams({ strict: false })
+</script>
+
+<div>Post {params.current.postId}</div>
 ```
 
 <!-- ::end:framework -->
@@ -227,6 +269,23 @@ function PostComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts/post-{$postId}.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/post-{$postId}')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  // postId will be the value after 'post-'
+</script>
+
+<div>Post ID: {params.current.postId}</div>
+```
+
 <!-- ::end:framework -->
 
 You can even combine prefixes with wildcard routes to create more complex patterns:
@@ -261,6 +320,24 @@ function StorageComponent() {
   // i.e. my-drive/documents/foo.txt
   return <div>Storage Location: /{params()._splat}</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/on-disk/storage-{$postId}/$.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/on-disk/storage-{$postId}/$')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  // _splat, will be value after 'storage-'
+  // i.e. my-drive/documents/foo.txt
+</script>
+
+<div>Storage Location: /{params.current._splat}</div>
 ```
 
 <!-- ::end:framework -->
@@ -299,6 +376,23 @@ function FileComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/files/{$fileName}[.]txt.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/files/{$fileName}.txt')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  // fileName will be the value before 'txt'
+</script>
+
+<div>File Name: {params.current.fileName}</div>
+```
+
 <!-- ::end:framework -->
 
 You can also combine suffixes with wildcards for more complex routing patterns:
@@ -331,6 +425,23 @@ function FileComponent() {
   // _splat will be the value before '.txt'
   return <div>File Splat: {params()._splat}</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/files/{$}[.]txt.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/files/{$}.txt')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  // _splat will be the value before '.txt'
+</script>
+
+<div>File Splat: {params.current._splat}</div>
 ```
 
 <!-- ::end:framework -->
@@ -367,6 +478,23 @@ function UserComponent() {
   // userId will be the value between 'user-' and '.json'
   return <div>User ID: {params().userId}</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/users/user-{$userId}[.]json.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/users/user-{$userId}.json')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  // userId will be the value between 'user-' and '.json'
+</script>
+
+<div>User ID: {params.current.userId}</div>
 ```
 
 <!-- ::end:framework -->
@@ -441,6 +569,20 @@ function PostsComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts/{-$category}.svelte"
+<script lang="ts">
+  const params = Route.useParams()
+</script>
+
+<div>
+  {params.current.category
+    ? `Posts in ${params.current.category}`
+    : 'All Posts'}
+</div>
+```
+
 <!-- ::end:framework -->
 
 ### Optional Parameters in Loaders
@@ -509,6 +651,24 @@ function FileComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/files/prefix{-$name}[.]txt.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  // Route: /files/prefix{-$name}.txt
+  // Matches: /files/prefix.txt and /files/prefixdocument.txt
+  export const Route = createFileRoute('/files/prefix{-$name}.txt')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+</script>
+
+<div>File: {params.current.name || 'default'}</div>
+```
+
 <!-- ::end:framework -->
 
 #### All Optional Parameters
@@ -575,6 +735,34 @@ function DateComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/{-$year}/{-$month}/{-$day}.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  // Route: /{-$year}/{-$month}/{-$day}
+  // Matches: /, /2023, /2023/12, /2023/12/25
+  export const Route = createFileRoute('/{-$year}/{-$month}/{-$day}')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+</script>
+
+{#if !params.current.year}
+  <div>Select a year</div>
+{:else if !params.current.month}
+  <div>Year: {params.current.year}</div>
+{:else if !params.current.day}
+  <div>Month: {params.current.year}/{params.current.month}</div>
+{:else}
+  <div>
+    Date: {params.current.year}/{params.current.month}/{params.current.day}
+  </div>
+{/if}
+```
+
 <!-- ::end:framework -->
 
 #### Optional Parameters with Wildcards
@@ -624,6 +812,27 @@ function DocsComponent() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/docs/v{-$version}/$.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  // Route: /docs/v{-$version}/$
+  // Matches: /docs/extra/path, /docs/v2/extra/path
+  export const Route = createFileRoute('/docs/v{-$version}/$')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+</script>
+
+<div>
+  Version: {params.current.version ? `v${params.current.version}` : 'latest'}
+  Path: {params.current._splat}
+</div>
 ```
 
 <!-- ::end:framework -->
@@ -722,6 +931,31 @@ function PostsComponent() {
 </Link>
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts/{-$category}.svelte"
+<script lang="ts">
+  import { Link } from '@tanstack/svelte-router'
+
+  // TypeScript knows category might be undefined
+  const params = Route.useParams() // category: string | undefined
+
+  // Safe navigation
+  const categoryUpper = $derived(params.current.category?.toUpperCase())
+</script>
+
+<div>{categoryUpper || 'All Categories'}</div>
+
+<!-- Navigation is type-safe and flexible -->
+<!-- ✅ Valid - string -->
+<Link to={'/posts/{-$category}'} params={{ category: 'tech' }}>Tech Posts</Link>
+
+<!-- ✅ Valid - number (auto-stringified) -->
+<Link to={'/posts/{-$category}'} params={{ category: 123 }}>Category 123</Link>
+```
+
+Paths containing `{...}` segments are passed to `to` as a string expression (`to={'/posts/{-$category}'}`), because braces inside a quoted attribute are Svelte expressions. Inside `<script>` blocks they are plain string literals.
+
 <!-- ::end:framework -->
 
 ## Internationalization (i18n) with Optional Path Parameters
@@ -798,6 +1032,39 @@ function AboutComponent() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/{-$locale}/about.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  // Route: /{-$locale}/about
+  export const Route = createFileRoute('/{-$locale}/about')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  const currentLocale = $derived(params.current.locale || 'en') // Default to English
+
+  const content: Record<string, { title: string; description: string }> = {
+    en: { title: 'About Us', description: 'Learn more about our company.' },
+    fr: {
+      title: 'À Propos',
+      description: 'En savoir plus sur notre entreprise.',
+    },
+    es: {
+      title: 'Acerca de',
+      description: 'Conoce más sobre nuestra empresa.',
+    },
+  }
+</script>
+
+<div>
+  <h1>{content[currentLocale]?.title}</h1>
+  <p>{content[currentLocale]?.description}</p>
+</div>
 ```
 
 <!-- ::end:framework -->
@@ -900,6 +1167,50 @@ function BlogPostComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/{-$locale}/blog/{-$category}/$slug.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  // Route: /{-$locale}/blog/{-$category}/$slug
+  export const Route = createFileRoute('/{-$locale}/blog/{-$category}/$slug')({
+    beforeLoad: async ({ params }) => {
+      const locale = params.locale || 'en'
+      const category = params.category
+
+      // Validate locale and category
+      const validLocales = ['en', 'fr', 'es', 'de']
+      if (locale && !validLocales.includes(locale)) {
+        throw new Error('Invalid locale')
+      }
+
+      return { locale, category }
+    },
+    loader: async ({ params, context }) => {
+      const { locale } = context
+      const { slug, category } = params
+
+      return fetchBlogPost({ slug, category, locale })
+    },
+  })
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  const data = Route.useLoaderData()
+</script>
+
+<article>
+  <h1>{data.current.title}</h1>
+  <p>
+    Category: {params.current.category || 'All'} | Language:
+    {params.current.locale || 'en'}
+  </p>
+  <div>{data.current.content}</div>
+</article>
+```
+
 <!-- ::end:framework -->
 
 This supports URLs like:
@@ -976,6 +1287,37 @@ function LanguageSwitcher() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/components/LanguageSwitcher.svelte"
+<script lang="ts">
+  import { Link, useParams } from '@tanstack/svelte-router'
+
+  const currentParams = useParams({ strict: false })
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'fr', name: 'Français' },
+    { code: 'es', name: 'Español' },
+  ]
+</script>
+
+<div class="language-switcher">
+  {#each languages as { code, name } (code)}
+    <Link
+      to={'/{-$locale}/blog/{-$category}/$slug'}
+      params={(prev) => ({
+        ...prev,
+        locale: code === 'en' ? undefined : code, // Remove 'en' for clean URLs
+      })}
+      class={currentParams.current.locale === code ? 'active' : ''}
+    >
+      {name}
+    </Link>
+  {/each}
+</div>
 ```
 
 <!-- ::end:framework -->
@@ -1082,6 +1424,55 @@ function AdvancedLanguageSwitcher() {
 }
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { Link, useParams } from '@tanstack/svelte-router'
+
+  const currentParams = useParams({ strict: false })
+
+  const handleLanguageChange = (newLocale: string) => {
+    return (prev: any) => {
+      // Preserve all existing params but update locale
+      const updatedParams = { ...prev }
+
+      if (newLocale === 'en') {
+        // Remove locale for clean English URLs
+        delete updatedParams.locale
+      } else {
+        updatedParams.locale = newLocale
+      }
+
+      return updatedParams
+    }
+  }
+</script>
+
+<div class="language-switcher">
+  <Link
+    to={'/{-$locale}/blog/{-$category}/$slug'}
+    params={handleLanguageChange('fr')}
+  >
+    Français
+  </Link>
+
+  <Link
+    to={'/{-$locale}/blog/{-$category}/$slug'}
+    params={handleLanguageChange('es')}
+  >
+    Español
+  </Link>
+
+  <Link
+    to={'/{-$locale}/blog/{-$category}/$slug'}
+    params={handleLanguageChange('en')}
+  >
+    English
+  </Link>
+</div>
+```
+
 <!-- ::end:framework -->
 
 ### Advanced i18n with Optional Parameters
@@ -1158,6 +1549,46 @@ function HomeComponent() {
 export const Route = createFileRoute('/{-$locale}/about')({
   component: AboutComponent,
 })
+```
+
+# Svelte
+
+```svelte title="src/routes/{-$locale}/index.svelte"
+<!--
+  Route structure:
+  routes/
+    {-$locale}/
+      index.svelte       /, /en, /fr
+      about.svelte       /about, /en/about, /fr/about
+      blog/
+        index.svelte     /blog, /en/blog, /fr/blog
+        $slug.svelte     /blog/post, /en/blog/post, /fr/blog/post
+-->
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/{-$locale}/')()
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  const isRTL = $derived(
+    ['ar', 'he', 'fa'].includes(params.current.locale || ''),
+  )
+</script>
+
+<div dir={isRTL ? 'rtl' : 'ltr'}>
+  <h1>Welcome ({params.current.locale || 'en'})</h1>
+  <!-- Localized content -->
+</div>
+```
+
+```svelte title="src/routes/{-$locale}/about.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/{-$locale}/about')()
+</script>
 ```
 
 <!-- ::end:framework -->
@@ -1264,6 +1695,58 @@ export const Route = createFileRoute('/{-$locale}/products/$id')({
     }
   },
 })
+```
+
+# Svelte
+
+```svelte title="src/routes/{-$locale}/products/$id.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/{-$locale}/products/$id')({
+    head: ({ params, loaderData }) => {
+      const locale = params.locale || 'en'
+      const product = loaderData
+
+      return {
+        title: product.title[locale] || product.title.en,
+        meta: [
+          {
+            name: 'description',
+            content: product.description[locale] || product.description.en,
+          },
+          {
+            property: 'og:locale',
+            content: locale,
+          },
+        ],
+        links: [
+          // Canonical URL (always use default locale format)
+          {
+            rel: 'canonical',
+            href: `https://example.com/products/${params.id}`,
+          },
+          // Alternate language versions
+          {
+            rel: 'alternate',
+            hreflang: 'en',
+            href: `https://example.com/products/${params.id}`,
+          },
+          {
+            rel: 'alternate',
+            hreflang: 'fr',
+            href: `https://example.com/fr/products/${params.id}`,
+          },
+          {
+            rel: 'alternate',
+            hreflang: 'es',
+            href: `https://example.com/es/products/${params.id}`,
+          },
+        ],
+      }
+    },
+  })
+</script>
 ```
 
 <!-- ::end:framework -->
@@ -1376,6 +1859,64 @@ function ShopComponent() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/{-$locale}/shop/{-$category}.svelte"
+<script module lang="ts">
+  import { createFileRoute, redirect } from '@tanstack/svelte-router'
+
+  // Define supported locales
+  type Locale = 'en' | 'fr' | 'es' | 'de'
+
+  // Type-safe locale validation
+  function validateLocale(locale: string | undefined): locale is Locale {
+    return ['en', 'fr', 'es', 'de'].includes(locale as Locale)
+  }
+
+  export const Route = createFileRoute('/{-$locale}/shop/{-$category}')({
+    beforeLoad: async ({ params }) => {
+      const { locale } = params
+
+      // Type-safe locale validation
+      if (locale && !validateLocale(locale)) {
+        throw redirect({
+          to: '/shop/{-$category}',
+          params: { category: params.category },
+        })
+      }
+
+      return {
+        locale: (locale as Locale) || 'en',
+        isDefaultLocale: !locale || locale === 'en',
+      }
+    },
+  })
+</script>
+
+<script lang="ts">
+  import { Link } from '@tanstack/svelte-router'
+
+  const params = Route.useParams()
+  const routeContext = Route.useRouteContext()
+
+  // TypeScript knows locale is Locale | undefined
+  // and we have validated it in beforeLoad
+</script>
+
+<div>
+  <h1>Shop {params.current.category ? `- ${params.current.category}` : ''}</h1>
+  <p>Language: {params.current.locale || 'en'}</p>
+  {#if !routeContext.current.isDefaultLocale}
+    <Link
+      to={'/shop/{-$category}'}
+      params={{ category: params.current.category }}
+    >
+      View in English
+    </Link>
+  {/if}
+</div>
 ```
 
 <!-- ::end:framework -->

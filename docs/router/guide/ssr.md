@@ -56,6 +56,51 @@ To implement non-streaming SSR with TanStack Router, you will need the following
   - `RouterServer` from `@tanstack/solid-router`
     - This implements the `Wrap` component option on `Router`
 
+# Svelte
+
+- `RouterClient` from `@tanstack/svelte-router/ssr/client`
+  - e.g. `hydrate(RouterClient, { target: document.body, props: { router } })`
+  - Hydrating this component in your client entry will render your application and also automatically implement the `Wrap` component option on `Router`
+- And, either:
+  - `defaultRenderHandler` from `@tanstack/svelte-router/ssr/server`
+    - This will render your application in your server entry and also automatically handle application-level hydration/dehydration and also automatically implement the RouterServer component.
+      or:
+  - `renderRouterToString` from `@tanstack/svelte-router/ssr/server`
+    - This differs from defaultRenderHandler in that you call it yourself from the handler callback, e.g. to adjust the response headers. It always renders `RouterServer` and has no `children` option.
+  - `RouterServer` from `@tanstack/svelte-router/ssr/server`
+    - This implements the `Wrap` component option on `Router` and renders `<HeadContent />`, your application inside `<div id="app">`, and `<Scripts />`
+
+Svelte components cannot render `<html>`, `<head>` or `<body>`, so the Svelte handlers build the document shell themselves: `<html>`, a `<head>` containing the route head tags, and a `<body>` containing `<div id="app">` followed by the router scripts. Your root route component does not render `<html>`, `<head>`, `<body>`, `<HeadContent />` or `<Scripts />`. Set attributes on `<html>` and `<body>` with the root route's `htmlAttrs` and `bodyAttrs` options, and use its `shellComponent` option (a component receiving a `children` snippet) to wrap the whole route tree inside `<body>`:
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRoute } from '@tanstack/svelte-router'
+  import Shell from '../components/Shell.svelte'
+
+  export const Route = createRootRoute({
+    htmlAttrs: { lang: 'en' },
+    bodyAttrs: { class: 'antialiased' },
+    shellComponent: Shell,
+  })
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
+```svelte title="src/components/Shell.svelte"
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+
+  let { children }: { children: Snippet } = $props()
+</script>
+
+<main>{@render children()}</main>
+```
+
 <!-- ::end:framework -->
 
 ### Automatic Server History
@@ -112,6 +157,23 @@ declare module '@tanstack/solid-router' {
 }
 ```
 
+# Svelte
+
+```ts title="src/router.ts"
+import { createRouter as createTanstackRouter } from '@tanstack/svelte-router'
+import { routeTree } from './routeTree.gen'
+
+export function createRouter() {
+  return createTanstackRouter({ routeTree })
+}
+
+declare module '@tanstack/svelte-router' {
+  interface Register {
+    router: ReturnType<typeof createRouter>
+  }
+}
+```
+
 <!-- ::end:framework -->
 
 ### Rendering the Application on the Server
@@ -145,6 +207,22 @@ import {
   createRequestHandler,
   defaultRenderHandler,
 } from '@tanstack/solid-router/ssr/server'
+import { createRouter } from './router'
+
+export async function render({ request }: { request: Request }) {
+  const handler = createRequestHandler({ request, createRouter })
+
+  return await handler(defaultRenderHandler)
+}
+```
+
+# Svelte
+
+```ts title="src/entry-server.ts"
+import {
+  createRequestHandler,
+  defaultRenderHandler,
+} from '@tanstack/svelte-router/ssr/server'
 import { createRouter } from './router'
 
 export async function render({ request }: { request: Request }) {
@@ -210,6 +288,29 @@ export function render({ request }: { request: Request }) {
 }
 ```
 
+# Svelte
+
+Svelte renders the document with `render` from `svelte/server`, and `renderRouterToString` always renders `RouterServer`, so there is no `children` option. `<Await>` renders its `fallback` on the server.
+
+```ts title="src/entry-server.ts"
+import {
+  createRequestHandler,
+  renderRouterToString,
+} from '@tanstack/svelte-router/ssr/server'
+import { createRouter } from './router'
+
+export function render({ request }: { request: Request }) {
+  const handler = createRequestHandler({ request, createRouter })
+
+  return handler(({ responseHeaders, router }) =>
+    renderRouterToString({
+      responseHeaders,
+      router,
+    }),
+  )
+}
+```
+
 <!-- ::end:framework -->
 
 NOTE: The createRequestHandler method requires a web api standard Request object, while the handler method will return a web api standard Response promise.
@@ -247,6 +348,20 @@ import { createRouter } from './router'
 const router = createRouter()
 
 hydrate(() => <RouterClient router={router} />, document.body)
+```
+
+# Svelte
+
+The server renders the document body from the same tree as `RouterClient`, so hydrate the body:
+
+```ts title="src/entry-client.ts"
+import { hydrate } from 'svelte'
+import { RouterClient } from '@tanstack/svelte-router/ssr/client'
+import { createRouter } from './router'
+
+const router = createRouter()
+
+hydrate(RouterClient, { target: document.body, props: { router } })
 ```
 
 <!-- ::end:framework -->
@@ -292,6 +407,26 @@ import {
   createRequestHandler,
   defaultStreamHandler,
 } from '@tanstack/solid-router/ssr/server'
+import { createRouter } from './router'
+
+export async function render({ request }: { request: Request }) {
+  const handler = createRequestHandler({ request, createRouter })
+
+  return await handler(defaultStreamHandler)
+}
+```
+
+# Svelte
+
+The Svelte handlers render `<Scripts />` after `<div id="app">` themselves, so you don't add it to your root route.
+
+Svelte 5's server renderer cannot stream markup out of order. `renderRouterToStream` sends the fully rendered document at once, then streams the router's dehydrated data after it, including deferred loader promises as they resolve. `<Await>` renders its `fallback` on the server and its resolved content on the client, using the streamed data without refetching. Requests from bots receive the complete document, deferred data included, in a single response.
+
+```ts title="src/entry-server.ts"
+import {
+  createRequestHandler,
+  defaultStreamHandler,
+} from '@tanstack/svelte-router/ssr/server'
 import { createRouter } from './router'
 
 export async function render({ request }: { request: Request }) {
@@ -350,6 +485,28 @@ export function render({ request }: { request: Request }) {
       responseHeaders,
       router,
       children: <RouterServer router={router} />,
+    }),
+  )
+}
+```
+
+# Svelte
+
+```ts title="src/entry-server.ts"
+import {
+  createRequestHandler,
+  renderRouterToStream,
+} from '@tanstack/svelte-router/ssr/server'
+import { createRouter } from './router'
+
+export function render({ request }: { request: Request }) {
+  const handler = createRequestHandler({ request, createRouter })
+
+  return handler(({ request, responseHeaders, router }) =>
+    renderRouterToStream({
+      request,
+      responseHeaders,
+      router,
     }),
   )
 }

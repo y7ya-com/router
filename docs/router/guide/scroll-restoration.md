@@ -219,6 +219,46 @@ function Component() {
 }
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useElementScrollRestoration } from '@tanstack/svelte-router'
+  import { createVirtualizer } from '@tanstack/svelte-virtual'
+
+  // We need a unique ID for manual scroll restoration on a specific element
+  // It should be as unique as possible for this element across your app
+  const scrollRestorationId = 'myVirtualizedContent'
+
+  // We use that ID to get the scroll entry for this element
+  const scrollEntry = useElementScrollRestoration({
+    id: scrollRestorationId,
+  })
+
+  // Let's use TanStack Virtual to virtualize some content!
+  let virtualizerParentRef: HTMLDivElement | null = null
+  const virtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
+    count: 10000,
+    getScrollElement: () => virtualizerParentRef,
+    estimateSize: () => 100,
+    // We pass the scrollY from the scroll restoration entry to the virtualizer
+    // as the initial offset
+    initialOffset: scrollEntry?.scrollY,
+  })
+</script>
+
+<!-- We pass the scroll restoration ID to the element
+     as a custom attribute that will get picked up by the
+     scroll restoration watcher -->
+<div
+  bind:this={virtualizerParentRef}
+  data-scroll-restoration-id={scrollRestorationId}
+  class="flex-1 border rounded-lg overflow-auto relative"
+>
+  ...
+</div>
+```
+
 <!-- ::end:framework -->
 
 ## Scroll Behavior

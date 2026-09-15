@@ -63,6 +63,24 @@ export const Route = createFileRoute('/path')({
 
 <!-- ::end:tabs -->
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title="src/routes/path.ts"
+/* eslint "@tanstack/router/create-route-property-order": "warn" */
+import { createFileRoute } from '@tanstack/svelte-router'
+
+export const Route = createFileRoute('/path')({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(getQueryOptions(context.hello))
+  },
+  beforeLoad: () => ({ hello: 'world' }),
+})
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 Examples of **correct** code for this rule:
@@ -94,6 +112,24 @@ export const Route = createFileRoute('/path')({
 ```tsx title="src/routes/path.tsx"
 /* eslint "@tanstack/router/create-route-property-order": "warn" */
 import { createFileRoute } from '@tanstack/solid-router'
+
+export const Route = createFileRoute('/path')({
+  beforeLoad: () => ({ hello: 'world' }),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(getQueryOptions(context.hello))
+  },
+})
+```
+
+<!-- ::end:tabs -->
+
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title="src/routes/path.ts"
+/* eslint "@tanstack/router/create-route-property-order": "warn" */
+import { createFileRoute } from '@tanstack/svelte-router'
 
 export const Route = createFileRoute('/path')({
   beforeLoad: () => ({ hello: 'world' }),

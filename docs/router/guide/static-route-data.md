@@ -91,6 +91,42 @@ export const Route = createRootRoute({
 
 <!-- ::end:tabs -->
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title='src/routes/posts.ts'
+import { createFileRoute } from '@tanstack/svelte-router'
+
+export const Route = createFileRoute('/posts')({
+  staticData: {
+    customData: 'Hello!',
+  },
+})
+```
+
+<!-- ::end:tabs -->
+
+You can then access this data anywhere you have access to your routes, including matches that can be mapped back to their routes.
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title='src/routes/__root.svelte'
+<script lang="ts">
+  import { useMatches } from '@tanstack/svelte-router'
+
+  const matches = useMatches()
+</script>
+
+<div>
+  {#each matches.current as match (match.id)}
+    <div>{match.staticData.customData}</div>
+  {/each}
+</div>
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 ## Enforcing Static Data
@@ -113,6 +149,16 @@ declare module '@tanstack/react-router' {
 
 ```tsx
 declare module '@tanstack/solid-router' {
+  interface StaticDataRouteOption {
+    customData: string
+  }
+}
+```
+
+# Svelte
+
+```ts
+declare module '@tanstack/svelte-router' {
   interface StaticDataRouteOption {
     customData: string
   }
@@ -151,6 +197,16 @@ declare module '@tanstack/react-router' {
 
 ```tsx
 declare module '@tanstack/solid-router' {
+  interface StaticDataRouteOption {
+    customData?: string
+  }
+}
+```
+
+# Svelte
+
+```ts
+declare module '@tanstack/svelte-router' {
   interface StaticDataRouteOption {
     customData?: string
   }
@@ -269,6 +325,38 @@ function Breadcrumbs() {
     </nav>
   )
 }
+```
+
+<!-- ::end:tabs -->
+
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title='src/routes/posts/$postId.ts'
+export const Route = createFileRoute('/posts/$postId')({
+  staticData: {
+    getTitle: () => 'Post Details',
+  },
+})
+```
+
+<!-- ::end:tabs -->
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title='src/components/Breadcrumbs.svelte'
+<script lang="ts">
+  import { useMatches } from '@tanstack/svelte-router'
+
+  const matches = useMatches()
+</script>
+
+<nav>
+  {#each matches.current.filter((m) => m.staticData?.getTitle) as m (m.id)}
+    <span>{m.staticData.getTitle()}</span>
+  {/each}
+</nav>
 ```
 
 <!-- ::end:tabs -->

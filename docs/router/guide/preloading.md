@@ -58,6 +58,17 @@ const router = createRouter({
 })
 ```
 
+# Svelte
+
+```ts
+import { createRouter } from '@tanstack/svelte-router'
+
+const router = createRouter({
+  // ...
+  defaultPreload: 'intent',
+})
+```
+
 <!-- ::end:framework -->
 
 This will turn on `intent` preloading by default for all `<Link>` components in your application. You can also set the `preload` prop on individual `<Link>` components to override the default behavior.
@@ -83,6 +94,17 @@ const router = createRouter({
 
 ```tsx
 import { createRouter } from '@tanstack/solid-router'
+
+const router = createRouter({
+  // ...
+  defaultPreloadDelay: 100,
+})
+```
+
+# Svelte
+
+```ts
+import { createRouter } from '@tanstack/svelte-router'
 
 const router = createRouter({
   // ...
@@ -124,6 +146,17 @@ const router = createRouter({
 
 ```tsx
 import { createRouter } from '@tanstack/solid-router'
+
+const router = createRouter({
+  // ...
+  defaultPreloadStaleTime: 10_000,
+})
+```
+
+# Svelte
+
+```ts
+import { createRouter } from '@tanstack/svelte-router'
 
 const router = createRouter({
   // ...
@@ -187,6 +220,17 @@ const router = createRouter({
 
 ```tsx
 import { createRouter } from '@tanstack/solid-router'
+
+const router = createRouter({
+  // ...
+  defaultPreloadStaleTime: 0,
+})
+```
+
+# Svelte
+
+```ts
+import { createRouter } from '@tanstack/svelte-router'
 
 const router = createRouter({
   // ...
@@ -276,6 +320,40 @@ function Component() {
 }
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { isNotFound, useRouter } from '@tanstack/svelte-router'
+
+  const router = useRouter()
+
+  $effect(() => {
+    async function preload() {
+      const matches = await router.preloadRoute({
+        to: postRoute,
+        params: { id: 1 },
+      })
+
+      const routeFailure = matches?.find(
+        (match) =>
+          match.status === 'error' ||
+          match.status === 'notFound' ||
+          isNotFound(match.error),
+      )
+
+      if (routeFailure) {
+        // Inspect routeFailure.error
+      }
+    }
+
+    preload()
+  })
+</script>
+
+<div></div>
+```
+
 <!-- ::end:framework -->
 
 If you need to preload only the JS chunk of a route, you can use the router's `loadRouteChunk` method. It accepts a route object and returns a promise that resolves when the route chunk is loaded.
@@ -334,6 +412,35 @@ function Component() {
 
   return <div />
 }
+```
+
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useRouter } from '@tanstack/svelte-router'
+
+  const router = useRouter()
+
+  $effect(() => {
+    async function preloadRouteChunks() {
+      try {
+        const postsRoute = router.routesByPath['/posts']
+        await Promise.all([
+          router.loadRouteChunk(router.routesByPath['/']),
+          router.loadRouteChunk(postsRoute),
+          router.loadRouteChunk(postsRoute.parentRoute),
+        ])
+      } catch (err) {
+        // Failed to preload route chunk
+      }
+    }
+
+    preloadRouteChunks()
+  })
+</script>
+
+<div></div>
 ```
 
 <!-- ::end:framework -->

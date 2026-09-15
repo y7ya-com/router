@@ -14,6 +14,7 @@ Install the necessary core dependencies:
 
 react: @tanstack/react-router @tanstack/react-router-devtools
 solid: @tanstack/solid-router @tanstack/solid-router-devtools
+svelte: @tanstack/svelte-router @tanstack/svelte-router-devtools
 
 <!-- ::end:tabs -->
 
@@ -23,6 +24,7 @@ Install the necessary development dependencies:
 
 react: @tanstack/router-plugin
 solid: @tanstack/router-plugin
+svelte: @tanstack/router-plugin
 
 <!-- ::end:tabs -->
 
@@ -228,6 +230,89 @@ render(() => <RouterProvider router={router} />, rootElement)
 
 <!-- ::end:tabs -->
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRoute } from '@tanstack/svelte-router'
+
+  export const Route = createRootRoute()
+</script>
+
+<script lang="ts">
+  import { Link, Outlet } from '@tanstack/svelte-router'
+  import { TanStackRouterDevtools } from '@tanstack/svelte-router-devtools'
+</script>
+
+<div class="p-2 flex gap-2">
+  <Link to="/" class="[&.active]:font-bold">Home</Link>
+  <Link to="/about" class="[&.active]:font-bold">About</Link>
+</div>
+<hr />
+<Outlet />
+<TanStackRouterDevtools />
+```
+
+```svelte title="src/routes/index.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/')()
+</script>
+
+<div class="p-2">
+  <h3>Welcome Home!</h3>
+</div>
+```
+
+```svelte title="src/routes/about.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/about')()
+</script>
+
+<div class="p-2">Hello from About!</div>
+```
+
+```svelte title="src/App.svelte"
+<script lang="ts">
+  import { RouterProvider } from '@tanstack/svelte-router'
+  import { router } from './router'
+</script>
+
+<RouterProvider {router} />
+```
+
+```ts title="src/router.ts"
+import { createRouter } from '@tanstack/svelte-router'
+
+// Import the generated route tree
+import { routeTree } from './routeTree.gen'
+
+// Create a new router instance
+export const router = createRouter({ routeTree })
+
+// Register the router instance for type safety
+declare module '@tanstack/svelte-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+```
+
+```ts title="src/main.ts"
+import { mount } from 'svelte'
+import App from './App.svelte'
+
+// Render the app
+mount(App, { target: document.getElementById('root')! })
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 Regardless of whether you are using the `@tanstack/router-plugin` package and running the `npm run dev`/`npm run build` scripts, or manually running the `tsr watch`/`tsr generate` commands from your package scripts, the route tree file will be generated at `src/routeTree.gen.ts`.
@@ -381,6 +466,90 @@ declare module '@tanstack/solid-router' {
 const rootElement = document.getElementById('app')!
 render(() => <RouterProvider router={router} />, rootElement)
 ```
+
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="src/RootLayout.svelte"
+<script lang="ts">
+  import { Link, Outlet } from '@tanstack/svelte-router'
+  import { TanStackRouterDevtools } from '@tanstack/svelte-router-devtools'
+</script>
+
+<div class="p-2 flex gap-2">
+  <Link to="/" class="[&.active]:font-bold">Home</Link>
+  <Link to="/about" class="[&.active]:font-bold">About</Link>
+</div>
+<hr />
+<Outlet />
+<TanStackRouterDevtools />
+```
+
+```svelte title="src/Index.svelte"
+<div class="p-2">
+  <h3>Welcome Home!</h3>
+</div>
+```
+
+```svelte title="src/About.svelte"
+<div class="p-2">Hello from About!</div>
+```
+
+```ts title="src/router.ts"
+import {
+  createRouter,
+  createRoute,
+  createRootRoute,
+} from '@tanstack/svelte-router'
+import RootLayout from './RootLayout.svelte'
+import Index from './Index.svelte'
+import About from './About.svelte'
+
+const rootRoute = createRootRoute({
+  component: RootLayout,
+})
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Index,
+})
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/about',
+  component: About,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, aboutRoute])
+
+export const router = createRouter({ routeTree })
+
+declare module '@tanstack/svelte-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+```
+
+```svelte title="src/App.svelte"
+<script lang="ts">
+  import { RouterProvider } from '@tanstack/svelte-router'
+  import { router } from './router'
+</script>
+
+<RouterProvider {router} />
+```
+
+```ts title="src/main.ts"
+import { mount } from 'svelte'
+import App from './App.svelte'
+
+mount(App, { target: document.getElementById('app')! })
+```
+
+<!-- ::end:tabs -->
 
 <!-- ::end:framework -->
 

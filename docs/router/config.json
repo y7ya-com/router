@@ -42,6 +42,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -90,6 +94,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -136,6 +144,10 @@
         },
         {
           "label": "solid",
+          "children": []
+        },
+        {
+          "label": "svelte",
           "children": []
         }
       ]
@@ -197,6 +209,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -253,6 +269,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -305,6 +325,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -328,6 +352,10 @@
         {
           "label": "solid",
           "children": []
+        },
+        {
+          "label": "svelte",
+          "children": []
         }
       ]
     },
@@ -346,6 +374,10 @@
         },
         {
           "label": "solid",
+          "children": []
+        },
+        {
+          "label": "svelte",
           "children": []
         }
       ]
@@ -558,6 +590,27 @@
             {
               "label": "Monorepo with Solid Query",
               "to": "framework/solid/examples/router-monorepo-solid-query"
+            }
+          ]
+        },
+        {
+          "label": "svelte",
+          "children": [
+            {
+              "label": "Quickstart (file-based)",
+              "to": "framework/svelte/examples/quickstart-file-based"
+            },
+            {
+              "label": "Basic (code-based)",
+              "to": "framework/svelte/examples/basic"
+            },
+            {
+              "label": "Basic + SSR + Svelte Query (file-based)",
+              "to": "framework/svelte/examples/basic-ssr-query-file-based"
+            },
+            {
+              "label": "Kitchen Sink + Svelte Query (file-based)",
+              "to": "framework/svelte/examples/kitchen-sink-svelte-query-file-based"
             }
           ]
         }

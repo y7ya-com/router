@@ -58,6 +58,20 @@ declare module '@tanstack/solid-router' {
 }
 ```
 
+# Svelte
+
+```ts
+const router = createRouter({
+  // ...
+})
+
+declare module '@tanstack/svelte-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+```
+
 <!-- ::end:framework -->
 
 By registering your router with the module, you can now use the exported hooks, components, and utilities with your router's exact types.

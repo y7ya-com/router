@@ -198,6 +198,16 @@ import { Link } from '@tanstack/solid-router'
 const link = <Link to="/about">About</Link>
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { Link } from '@tanstack/svelte-router'
+</script>
+
+<Link to="/about">About</Link>
+```
+
 <!-- ::end:framework -->
 
 ### Dynamic Links

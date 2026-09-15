@@ -32,6 +32,18 @@ export const Route = createFileRoute('/')({
 })
 ```
 
+# Svelte
+
+```svelte title="src/routes/index.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/')({})
+</script>
+
+<!-- The markup of the route file is the route's component --><div>...</div>
+```
+
 <!-- ::end:framework -->
 
 The `createFileRoute` function takes a single argument, the file-route's path as a string.
@@ -97,6 +109,42 @@ export interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()
 ```
 
+# Svelte
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  // Standard root route
+  import { createRootRoute } from '@tanstack/svelte-router'
+
+  export const Route = createRootRoute()
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  // Root route with Context
+  import { createRootRouteWithContext } from '@tanstack/svelte-router'
+  import type { QueryClient } from '@tanstack/svelte-query'
+
+  export interface MyRouterContext {
+    queryClient: QueryClient
+  }
+  export const Route = createRootRouteWithContext<MyRouterContext>()()
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
 <!-- ::end:framework -->
 
 To learn more about Context in TanStack Router, see the [Router Context](../guide/router-context.md) guide.
@@ -135,6 +183,18 @@ export const Route = createFileRoute('/about')({
 function AboutComponent() {
   return <div>About</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/about.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/about')({})
+</script>
+
+<div>About</div>
 ```
 
 <!-- ::end:framework -->
@@ -177,6 +237,19 @@ export const Route = createFileRoute('/posts/')({
 function PostsIndexComponent() {
   return <div>Please select a post!</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/posts.index.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  // Note the trailing slash, which is used to target index routes
+  export const Route = createFileRoute('/posts/')({})
+</script>
+
+<div>Please select a post!</div>
 ```
 
 <!-- ::end:framework -->
@@ -227,6 +300,26 @@ function PostComponent() {
   const { postId } = Route.useParams()
   return <div>Post ID: {postId()}</div>
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/posts.$postId.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/$postId')({
+    // In a loader
+    loader: ({ params }) => fetchPost(params.postId),
+  })
+</script>
+
+<script lang="ts">
+  // In a component!
+  const params = Route.useParams()
+</script>
+
+<div>Post ID: {params.current.postId}</div>
 ```
 
 <!-- ::end:framework -->
@@ -289,6 +382,24 @@ function PostsComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts.{-$category}.svelte"
+<script module lang="ts">
+  // The `-$category` segment is optional, so this route matches both `/posts` and `/posts/tech`
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/{-$category}')({})
+</script>
+
+<script lang="ts">
+  const params = Route.useParams()
+  const category = $derived(params.current.category)
+</script>
+
+<div>{category ? `Posts in ${category}` : 'All Posts'}</div>
+```
+
 <!-- ::end:framework -->
 
 This route will match both `/posts` (category is `undefined`) and `/posts/tech` (category is `"tech"`).
@@ -317,6 +428,19 @@ import { createFileRoute } from '@tanstack/solid-router'
 export const Route = createFileRoute('/posts/{-$category}/{-$slug}')({
   component: PostsComponent,
 })
+```
+
+# Svelte
+
+```svelte title="src/routes/posts.{-$category}.{-$slug}.svelte"
+<script module lang="ts">
+  // The `-$category` segment is optional, so this route matches both `/posts` and `/posts/tech`
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/{-$category}/{-$slug}')({})
+</script>
+
+<!-- ... -->
 ```
 
 <!-- ::end:framework -->
@@ -387,6 +511,25 @@ function AppLayoutComponent() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/app.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/app')({})
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<div>
+  <h1>App Layout</h1>
+  <Outlet />
+</div>
 ```
 
 <!-- ::end:framework -->
@@ -483,6 +626,25 @@ function PathlessLayoutComponent() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/_pathlessLayout.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/_pathlessLayout')({})
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<div>
+  <h1>Pathless layout</h1>
+  <Outlet />
+</div>
 ```
 
 <!-- ::end:framework -->
@@ -618,6 +780,32 @@ function PostComponent() {
     </div>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/posts.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts')({
+    loader: () => fetchPosts(),
+  })
+</script>
+
+<script lang="ts">
+  import PostsTable from './-posts-table.svelte'
+  import PostsHeader from './-components/header.svelte'
+  import PostsFooter from './-components/footer.svelte'
+
+  const posts = Route.useLoaderData()
+</script>
+
+<div>
+  <PostsHeader />
+  <PostsTable posts={posts.current} />
+  <PostsFooter />
+</div>
 ```
 
 <!-- ::end:framework -->

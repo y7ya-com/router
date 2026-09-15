@@ -47,6 +47,10 @@ For more details, see the [file-based routing documentation](./routing/file-base
 
 [explore the live example](https://tanstack.com/router/latest/docs/framework/solid/examples/basic-file-based)
 
+# Svelte
+
+[explore the live example](https://tanstack.com/router/latest/docs/framework/svelte/examples/quickstart-file-based)
+
 <!-- ::end:framework -->
 
 ### Code-Based Route Configuration
@@ -64,6 +68,10 @@ For more details, see the [code-based routing documentation](./routing/code-base
 # Solid
 
 [explore the live example](https://tanstack.com/router/latest/docs/framework/solid/examples/basic)
+
+# Svelte
+
+[explore the live example](https://tanstack.com/router/latest/docs/framework/svelte/examples/basic)
 
 <!-- ::end:framework -->
 
@@ -88,6 +96,10 @@ Before installing TanStack Router, please ensure your project meets the followin
 
 - `solid-js` v1.x.x
 
+# Svelte
+
+- `svelte` v5.x.x
+
 <!-- ::end:framework -->
 
 > [!NOTE]
@@ -103,6 +115,7 @@ To install TanStack Router in your project, run the following command using your
 
 react: @tanstack/react-router
 solid: @tanstack/solid-router
+svelte: @tanstack/svelte-router
 
 <!-- ::end:tabs -->
 
@@ -126,6 +139,16 @@ Once installed, you can verify the installation by checking your `package.json` 
 {
   "dependencies": {
     "@tanstack/solid-router": "^x.x.x"
+  }
+}
+```
+
+# Svelte
+
+```json
+{
+  "dependencies": {
+    "@tanstack/svelte-router": "^x.x.x"
   }
 }
 ```

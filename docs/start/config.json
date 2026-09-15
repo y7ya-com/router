@@ -512,6 +512,15 @@
               "to": "framework/solid/examples/start-basic-nitro"
             }
           ]
+        },
+        {
+          "label": "svelte",
+          "children": [
+            {
+              "label": "Basic",
+              "to": "framework/svelte/examples/start-basic"
+            }
+          ]
         }
       ]
     },

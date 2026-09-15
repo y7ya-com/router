@@ -77,6 +77,29 @@ function MyComponent() {
 }
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useBlocker } from '@tanstack/svelte-router'
+
+  let formIsDirty = $state(false)
+
+  useBlocker({
+    shouldBlockFn: () => {
+      if (!formIsDirty) {
+        return false
+      }
+
+      const shouldLeave = confirm('Are you sure you want to leave?')
+      return !shouldLeave
+    },
+  })
+
+  // ...
+</script>
+```
+
 <!-- ::end:framework -->
 
 `shouldBlockFn` gives you type safe access to the `current` and `next` location:
@@ -129,6 +152,30 @@ function MyComponent() {
 }
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useBlocker } from '@tanstack/svelte-router'
+
+  // always block going from /foo to /bar/123?hello=world
+  const blocker = useBlocker({
+    shouldBlockFn: ({ current, next }) => {
+      return (
+        current.routeId === '/foo' &&
+        next.fullPath === '/bar/$id' &&
+        next.params.id === 123 &&
+        next.search.hello === 'world'
+      )
+    },
+    withResolver: true,
+  })
+
+  // blocker.current.status, blocker.current.proceed, blocker.current.reset
+  // ...
+</script>
+```
+
 <!-- ::end:framework -->
 
 Note that even if `shouldBlockFn` returns `false`, the browser's `beforeunload` event may still be triggered on page reloads or tab closing. To gain control over this, you can use the `enableBeforeUnload` option to conditionally register the `beforeunload` handler:
@@ -167,6 +214,23 @@ function MyComponent() {
 
   // ...
 }
+```
+
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useBlocker } from '@tanstack/svelte-router'
+
+  let formIsDirty = $state(false)
+
+  useBlocker({
+    // ...
+    enableBeforeUnload: () => formIsDirty,
+  })
+
+  // ...
+</script>
 ```
 
 <!-- ::end:framework -->
@@ -242,6 +306,24 @@ function MyComponent() {
 }
 ```
 
+# Svelte
+
+In Svelte, `Block` always provides a resolver to its `children` snippet: a blocked navigation waits until `proceed` or `reset` is called. For `confirm()`-style blocking, use `useBlocker` without `withResolver`.
+
+```svelte
+<script lang="ts">
+  import { Block } from '@tanstack/svelte-router'
+
+  let formIsDirty = $state(false)
+</script>
+
+<Block shouldBlockFn={() => formIsDirty} enableBeforeUnload={formIsDirty}>
+  {#snippet children(resolver)}
+    <!-- resolver.current.status, resolver.current.proceed, resolver.current.reset -->
+  {/snippet}
+</Block>
+```
+
 <!-- ::end:framework -->
 
 ## How can I show a custom UI?
@@ -312,6 +394,32 @@ function MyComponent() {
       )}
     </>
 }
+```
+
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useBlocker } from '@tanstack/svelte-router'
+
+  let formIsDirty = $state(false)
+
+  const blocker = useBlocker({
+    shouldBlockFn: () => formIsDirty,
+    withResolver: true,
+  })
+
+  // ...
+</script>
+
+<!-- ... -->
+{#if blocker.current.status === 'blocked'}
+  <div>
+    <p>Are you sure you want to leave?</p>
+    <button onclick={() => blocker.current.proceed?.()}>Yes</button>
+    <button onclick={() => blocker.current.reset?.()}>No</button>
+  </div>
+{/if}
 ```
 
 <!-- ::end:framework -->
@@ -402,6 +510,47 @@ function MyComponent() {
 }
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { useBlocker } from '@tanstack/svelte-router'
+  import SaveBlocker from './SaveBlocker.svelte'
+
+  let formIsDirty = $state(false)
+
+  useBlocker({
+    shouldBlockFn: () => {
+      if (!formIsDirty) {
+        return false
+      }
+
+      const shouldBlock = new Promise<boolean>((resolve) => {
+        // Using a modal manager of your choice
+        modals.open({
+          title: 'Are you sure you want to leave?',
+          component: SaveBlocker,
+          props: {
+            confirm: () => {
+              modals.closeAll()
+              resolve(false)
+            },
+            reject: () => {
+              modals.closeAll()
+              resolve(true)
+            },
+          },
+          onClose: () => resolve(true),
+        })
+      })
+      return shouldBlock
+    },
+  })
+
+  // ...
+</script>
+```
+
 <!-- ::end:framework -->
 
 ### Component-based custom UI
@@ -462,6 +611,29 @@ function MyComponent() {
     </Block>
   )
 }
+```
+
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { Block } from '@tanstack/svelte-router'
+
+  let formIsDirty = $state(false)
+</script>
+
+<Block shouldBlockFn={() => formIsDirty}>
+  {#snippet children(resolver)}
+    <!-- ... -->
+    {#if resolver.current.status === 'blocked'}
+      <div>
+        <p>Are you sure you want to leave?</p>
+        <button onclick={() => resolver.current.proceed?.()}>Yes</button>
+        <button onclick={() => resolver.current.reset?.()}>No</button>
+      </div>
+    {/if}
+  {/snippet}
+</Block>
 ```
 
 <!-- ::end:framework -->

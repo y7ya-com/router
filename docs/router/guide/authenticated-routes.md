@@ -121,6 +121,39 @@ export const Route = createFileRoute('/_authenticated')({
 })
 ```
 
+# Svelte
+
+```ts
+import { createFileRoute, redirect, isRedirect } from '@tanstack/svelte-router'
+
+// src/routes/_authenticated.ts
+export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: async ({ location }) => {
+    try {
+      const user = await verifySession() // might throw on network error
+      if (!user) {
+        throw redirect({
+          to: '/login',
+          search: { redirect: location.href },
+        })
+      }
+      return { user }
+    } catch (error) {
+      // Re-throw redirects (they're intentional, not errors)
+      if (isRedirect(error)) {
+        throw error
+      }
+
+      // Auth check failed (network error, etc.) - redirect to login
+      throw redirect({
+        to: '/login',
+        search: { redirect: location.href },
+      })
+    }
+  },
+})
+```
+
 <!-- ::end:framework -->
 
 The [`isRedirect()`](../api/router/isRedirectFunction.md) helper distinguishes between actual errors and intentional redirects.
@@ -273,6 +306,60 @@ function App() {
 
 <!-- ::end:tabs -->
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRouteWithContext } from '@tanstack/svelte-router'
+
+  interface MyRouterContext {
+    // The ReturnType of your createAuth function
+    auth: AuthState
+  }
+
+  export const Route = createRootRouteWithContext<MyRouterContext>()({})
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
+```ts title="src/router.ts"
+import { createRouter } from '@tanstack/svelte-router'
+
+import { routeTree } from './routeTree.gen'
+
+export const router = createRouter({
+  routeTree,
+  context: {
+    // auth will initially be undefined
+    // We'll be passing down the auth state from within a Svelte component
+    auth: undefined!,
+  },
+})
+```
+
+```svelte title="src/App.svelte"
+<script lang="ts">
+  import { RouterProvider } from '@tanstack/svelte-router'
+
+  import { createAuth } from './auth.svelte.js'
+
+  import { router } from './router'
+
+  const auth = createAuth()
+</script>
+
+<RouterProvider {router} context={{ auth }} />
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 Then in the authenticated route, you can check the auth state using the `beforeLoad` function, and **throw a `redirect()`** to your **Login route** if the user is not signed-in.
@@ -306,6 +393,25 @@ import { createFileRoute, redirect } from '@tanstack/solid-router'
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context, location }) => {
     if (!context.auth.isAuthenticated()) {
+      throw redirect({
+        to: '/login',
+        search: {
+          redirect: location.href,
+        },
+      })
+    }
+  },
+})
+```
+
+# Svelte
+
+```ts title="src/routes/dashboard.route.ts"
+import { createFileRoute, redirect } from '@tanstack/svelte-router'
+
+export const Route = createFileRoute('/dashboard')({
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) {
       throw redirect({
         to: '/login',
         search: {

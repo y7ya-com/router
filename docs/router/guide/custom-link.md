@@ -66,6 +66,43 @@ export const CustomLink: LinkComponent<typeof BasicLinkComponent> = (props) => {
 }
 ```
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="BasicLink.svelte"
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+  import type { HTMLAnchorAttributes } from 'svelte/elements'
+
+  type BasicLinkProps = HTMLAnchorAttributes & {
+    children?: Snippet
+    // Add any additional props you want to pass to the anchor element
+  }
+
+  let { children, ...rest }: BasicLinkProps = $props()
+</script>
+
+<a {...rest} class="block px-3 py-2 text-red-700">
+  {@render children?.()}
+</a>
+```
+
+```svelte title="CustomLink.svelte"
+<script lang="ts">
+  import { createLink } from '@tanstack/svelte-router'
+  import BasicLink from './BasicLink.svelte'
+
+  const CreatedLinkComponent = createLink(BasicLink)
+
+  let props = $props()
+</script>
+
+<CreatedLinkComponent preload="intent" {...props} />
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 You can then use your newly created `Link` component as any other `Link`
@@ -322,6 +359,37 @@ export const CustomLink: LinkComponent<typeof MantineLinkComponent> = (
 
 ```tsx title="UntitledLink.tsx"
 // TODO: Add this example.
+```
+
+<!-- ::end:tabs -->
+
+# Svelte
+
+### Some Library example
+
+Wrap the library's anchor component in a Svelte component that forwards the props it receives, then pass that component to `createLink`.
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="UntitledLink.svelte"
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+  import { Anchor } from 'some-ui-library'
+
+  let { children, ...rest }: { children?: Snippet; [key: string]: unknown } =
+    $props()
+</script>
+
+<Anchor {...rest}>
+  {@render children?.()}
+</Anchor>
+```
+
+```ts title="CustomLink.ts"
+import { createLink } from '@tanstack/svelte-router'
+import UntitledLink from './UntitledLink.svelte'
+
+export const CustomLink = createLink(UntitledLink)
 ```
 
 <!-- ::end:tabs -->

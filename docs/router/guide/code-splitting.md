@@ -153,6 +153,25 @@ function Posts() {
 }
 ```
 
+# Svelte
+
+A `.svelte` route file that declares its route options in `<script module>` is bundled together with its component. (A `.svelte` route file without `<script module>` is only a component, and is always loaded lazily through `lazyRouteComponent`.)
+
+```svelte title="src/routes/posts.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+  import { fetchPosts } from './api'
+
+  export const Route = createFileRoute('/posts')({
+    loader: fetchPosts,
+  })
+</script>
+
+<script lang="ts">
+  // ...
+</script>
+```
+
 <!-- ::end:framework -->
 
 **After (Split into two files)**
@@ -176,6 +195,17 @@ export const Route = createFileRoute('/posts')({
 
 ```tsx title="src/routes/posts.tsx"
 import { createFileRoute } from '@tanstack/solid-router'
+import { fetchPosts } from './api'
+
+export const Route = createFileRoute('/posts')({
+  loader: fetchPosts,
+})
+```
+
+# Svelte
+
+```ts title="src/routes/posts.ts"
+import { createFileRoute } from '@tanstack/svelte-router'
 import { fetchPosts } from './api'
 
 export const Route = createFileRoute('/posts')({
@@ -215,6 +245,16 @@ export const Route = createLazyFileRoute('/posts')({
 function Posts() {
   // ...
 }
+```
+
+# Svelte
+
+In Svelte, the `.lazy.svelte` file is itself the route component:
+
+```svelte title="src/routes/posts.lazy.svelte"
+<script lang="ts">
+  // ...
+</script>
 ```
 
 <!-- ::end:framework -->
@@ -279,6 +319,26 @@ function Posts() {
 
 <!-- ::end:tabs -->
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title="src/routes/posts.ts"
+import { createFileRoute } from '@tanstack/svelte-router'
+
+export const Route = createFileRoute('/posts')({
+  // Hello?
+})
+```
+
+```svelte title="src/routes/posts.lazy.svelte"
+<script lang="ts">
+  // ...
+</script>
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 **After (Virtual Routes)**
@@ -311,6 +371,14 @@ export const Route = createLazyFileRoute('/posts')({
 function Posts() {
   // ...
 }
+```
+
+# Svelte
+
+```svelte title="src/routes/posts.lazy.svelte"
+<script lang="ts">
+  // ...
+</script>
 ```
 
 <!-- ::end:framework -->
@@ -386,6 +454,24 @@ export const loader = async (context: LoaderContext) => {
 }
 ```
 
+# Svelte
+
+```ts
+import { createRoute, lazyFn } from '@tanstack/svelte-router'
+import MyComponent from './MyComponent.svelte'
+
+const route = createRoute({
+  path: '/my-route',
+  component: MyComponent,
+  loader: lazyFn(() => import('./loader'), 'loader'),
+})
+
+// In another file...
+export const loader = async (context: LoaderContext) => {
+  /// ...
+}
+```
+
 <!-- ::end:framework -->
 
 If you are using file-based routing, you'll only be able to split your `loader` if you are using [Automatic Code Splitting](#using-automatic-code-splitting) with customized bundling options.
@@ -456,6 +542,38 @@ export function MyComponent() {
 
   return <div>...</div>
 }
+```
+
+<!-- ::end:tabs -->
+
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title="src/my-route.ts"
+import { createRoute } from '@tanstack/svelte-router'
+import MyComponent from './MyComponent.svelte'
+
+const route = createRoute({
+  path: '/my-route',
+  loader: () => ({
+    foo: 'bar',
+  }),
+  component: MyComponent,
+})
+```
+
+```svelte title="src/MyComponent.svelte"
+<script lang="ts">
+  import { getRouteApi } from '@tanstack/svelte-router'
+
+  const route = getRouteApi('/my-route')
+
+  const loaderData = route.useLoaderData()
+  //    ^? { readonly current: { foo: string } }
+</script>
+
+<div>...</div>
 ```
 
 <!-- ::end:tabs -->

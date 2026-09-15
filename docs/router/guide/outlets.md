@@ -53,4 +53,24 @@ function RootComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRoute } from '@tanstack/svelte-router'
+
+  export const Route = createRootRoute({})
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<div>
+  <h1>My App</h1>
+  <Outlet />
+  <!-- This is where child routes will render -->
+</div>
+```
+
 <!-- ::end:framework -->

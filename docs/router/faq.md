@@ -96,6 +96,36 @@ function PathlessLayoutRouteComponent() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/routes/_pathless-layout.svelte"
+<script module lang="ts">
+  import { createFileRoute, redirect } from '@tanstack/svelte-router'
+  import { isAuthenticated } from '../utils/auth'
+
+  export const Route = createFileRoute('/_pathless-layout')({
+    beforeLoad: async () => {
+      // Check if the user is authenticated
+      const authed = await isAuthenticated()
+      if (!authed) {
+        // Redirect the user to the login page
+        throw redirect({ to: '/login' })
+      }
+    },
+    // ...
+  })
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<div>
+  <h1>You are authed</h1>
+  <Outlet />
+</div>
+```
+
 <!-- ::end:framework -->
 
 </details>

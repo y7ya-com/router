@@ -188,6 +188,79 @@ const filesRoute = createRoute({
 })
 ```
 
+# Svelte
+
+```ts
+import { createRootRoute, createRoute } from '@tanstack/svelte-router'
+
+const rootRoute = createRootRoute()
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+})
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'about',
+})
+
+const postsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'posts',
+})
+
+const postsIndexRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: '/',
+})
+
+const postRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: '$postId',
+})
+
+const postEditorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'posts/$postId/edit',
+})
+
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'settings',
+})
+
+const profileRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: 'profile',
+})
+
+const notificationsRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: 'notifications',
+})
+
+const pathlessLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: 'pathlessLayout',
+})
+
+const pathlessLayoutARoute = createRoute({
+  getParentRoute: () => pathlessLayoutRoute,
+  path: 'route-a',
+})
+
+const pathlessLayoutBRoute = createRoute({
+  getParentRoute: () => pathlessLayoutRoute,
+  path: 'route-b',
+})
+
+const filesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'files/$',
+})
+```
+
 <!-- ::end:framework -->
 
 ## Anatomy of a Route
@@ -313,6 +386,24 @@ export interface MyRouterContext {
   queryClient: QueryClient
 }
 const rootRoute = createRootRouteWithContext<MyRouterContext>()
+```
+
+# Svelte
+
+```ts
+// Standard root route
+import { createRootRoute } from '@tanstack/svelte-router'
+
+const rootRoute = createRootRoute()
+
+// Root route with Context
+import { createRootRouteWithContext } from '@tanstack/svelte-router'
+import type { QueryClient } from '@tanstack/svelte-query'
+
+export interface MyRouterContext {
+  queryClient: QueryClient
+}
+const rootRoute = createRootRouteWithContext<MyRouterContext>()()
 ```
 
 <!-- ::end:framework -->

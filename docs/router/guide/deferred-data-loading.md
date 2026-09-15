@@ -121,6 +121,25 @@ export const Route = createFileRoute('/posts/$postId')({
 })
 ```
 
+# Svelte
+
+```svelte title="src/routes/posts.$postId.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+  import { slowDataOptions, fastDataOptions } from '~/api/query-options'
+
+  export const Route = createFileRoute('/posts/$postId')({
+    loader: async ({ context: { queryClient } }) => {
+      // Kick off the fetching of some slower data, but do not await it
+      queryClient.prefetchQuery(slowDataOptions())
+
+      // Fetch and await some data that resolves quickly
+      await queryClient.ensureQueryData(fastDataOptions())
+    },
+  })
+</script>
+```
+
 <!-- ::end:framework -->
 
 Then in your component, you can use the library's hooks to access the data:
@@ -189,6 +208,47 @@ function SlowDataComponent() {
 
   return <div>{data()}</div>
 }
+```
+
+# Svelte
+
+Svelte has no Suspense, so render the query's pending state where the slow data is used:
+
+```svelte title="src/routes/posts.$postId.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/posts/$postId')({
+    // ...
+  })
+</script>
+
+<script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+  import { fastDataOptions } from '~/api/query-options'
+  import SlowDataComponent from '~/components/SlowDataComponent.svelte'
+
+  const fastData = createQuery(() => fastDataOptions())
+
+  // do something with fastData.data
+</script>
+
+<SlowDataComponent />
+```
+
+```svelte title="src/components/SlowDataComponent.svelte"
+<script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+  import { slowDataOptions } from '~/api/query-options'
+
+  const query = createQuery(() => slowDataOptions())
+</script>
+
+{#if query.isPending}
+  <div>Loading...</div>
+{:else}
+  <div>{query.data}</div>
+{/if}
 ```
 
 <!-- ::end:framework -->

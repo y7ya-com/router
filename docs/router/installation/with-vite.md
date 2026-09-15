@@ -8,6 +8,7 @@ To use file-based routing with **Vite**, you'll need to install the `@tanstack/r
 
 react: @tanstack/router-plugin
 solid: @tanstack/router-plugin
+svelte: @tanstack/router-plugin
 
 <!-- ::end:tabs -->
 
@@ -59,6 +60,29 @@ export default defineConfig({
 ```
 
 Or, you can clone our [Quickstart Vite example](https://github.com/TanStack/router/tree/main/examples/solid/quickstart-file-based) and get started.
+
+# Svelte
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    // Please make sure that '@tanstack/router-plugin' is passed before '@sveltejs/vite-plugin-svelte'
+    tanstackRouter({
+      target: 'svelte',
+      autoCodeSplitting: true,
+    }),
+    svelte(),
+    // ...
+  ],
+})
+```
+
+Or, you can clone our [Quickstart Vite example](https://github.com/TanStack/router/tree/main/examples/svelte/quickstart-file-based) and get started.
 
 <!-- ::end:framework -->
 

@@ -59,6 +59,34 @@ export function HeadingLink(props: HeaderLinkProps): Solid.JSX.Element {
 }
 ```
 
+# Svelte
+
+```svelte title="src/components/HeadingLink.svelte"
+<script
+  lang="ts"
+  generics="TRouter extends RegisteredRouter = RegisteredRouter, TOptions = unknown"
+>
+  import { Link } from '@tanstack/svelte-router'
+  import type {
+    RegisteredRouter,
+    ValidateLinkOptions,
+  } from '@tanstack/svelte-router'
+
+  let {
+    title,
+    linkOptions,
+  }: {
+    title: string
+    linkOptions: ValidateLinkOptions<TRouter, TOptions>
+  } = $props()
+</script>
+
+<h1>{title}</h1>
+<Link {...linkOptions as ValidateLinkOptions} />
+```
+
+Svelte components cannot declare overloads, so the component casts `linkOptions` to the permissive `ValidateLinkOptions` type instead.
+
 <!-- ::end:framework -->
 
 A more permissive overload of `HeadingLink` is used to avoid type assertions you would otherwise have to do with the generic signature. Using a looser signature without type parameters is an easy way to avoid type assertions in the implementation of `HeadingLink`
@@ -134,6 +162,32 @@ export function Menu(props: MenuProps): Solid.JSX.Element {
     </ul>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/components/Menu.svelte"
+<script
+  lang="ts"
+  generics="TRouter extends RegisteredRouter = RegisteredRouter, TItems extends ReadonlyArray<unknown> = ReadonlyArray<unknown>"
+>
+  import { Link } from '@tanstack/svelte-router'
+  import type {
+    RegisteredRouter,
+    ValidateLinkOptions,
+    ValidateLinkOptionsArray,
+  } from '@tanstack/svelte-router'
+
+  let { items }: { items: ValidateLinkOptionsArray<TRouter, TItems> } = $props()
+</script>
+
+<ul>
+  {#each items as item}
+    <li>
+      <Link {...item as ValidateLinkOptions} />
+    </li>
+  {/each}
+</ul>
 ```
 
 <!-- ::end:framework -->
@@ -215,6 +269,39 @@ export function Menu(props: MenuProps): Solid.JSX.Element {
     </ul>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/components/Menu.svelte"
+<script
+  lang="ts"
+  generics="TRouter extends RegisteredRouter = RegisteredRouter, TItems extends ReadonlyArray<unknown> = ReadonlyArray<unknown>, TFrom extends string = string"
+>
+  import { Link } from '@tanstack/svelte-router'
+  import type {
+    RegisteredRouter,
+    ValidateFromPath,
+    ValidateLinkOptions,
+    ValidateLinkOptionsArray,
+  } from '@tanstack/svelte-router'
+
+  let {
+    from,
+    items,
+  }: {
+    from: ValidateFromPath<TRouter, TFrom>
+    items: ValidateLinkOptionsArray<TRouter, TItems, TFrom>
+  } = $props()
+</script>
+
+<ul>
+  {#each items as item}
+    <li>
+      <Link {...item as ValidateLinkOptions} from={from as ValidateFromPath} />
+    </li>
+  {/each}
+</ul>
 ```
 
 <!-- ::end:framework -->
@@ -325,6 +412,48 @@ export function useConditionalNavigate(
     disable: () => setEnabled(false),
     navigate: () => {
       if (enabled()) {
+        navigate(navigateOptions)
+      }
+    },
+  }
+}
+```
+
+# Svelte
+
+```ts title="src/useConditionalNavigate.svelte.ts"
+import { useNavigate } from '@tanstack/svelte-router'
+import type {
+  RegisteredRouter,
+  ValidateNavigateOptions,
+} from '@tanstack/svelte-router'
+
+export interface UseConditionalNavigateResult {
+  enable: () => void
+  disable: () => void
+  navigate: () => void
+}
+
+export function useConditionalNavigate<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+>(
+  navigateOptions: ValidateNavigateOptions<TRouter, TOptions>,
+): UseConditionalNavigateResult
+export function useConditionalNavigate(
+  navigateOptions: ValidateNavigateOptions,
+): UseConditionalNavigateResult {
+  let enabled = $state(false)
+  const navigate = useNavigate()
+  return {
+    enable: () => {
+      enabled = true
+    },
+    disable: () => {
+      enabled = false
+    },
+    navigate: () => {
+      if (enabled) {
         navigate(navigateOptions)
       }
     },

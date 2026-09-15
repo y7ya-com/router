@@ -132,6 +132,21 @@ const routeApi = getRouteApi('/posts')
 const data = routeApi.useLoaderData()
 ```
 
+# Svelte
+
+```svelte
+<script lang="ts">
+  import { getRouteApi } from '@tanstack/svelte-router'
+
+  // in your component
+
+  const routeApi = getRouteApi('/posts')
+  const data = routeApi.useLoaderData()
+</script>
+
+<!-- read the loader data as data.current -->
+```
+
 <!-- ::end:framework -->
 
 ## Dependency-based Stale-While-Revalidate Caching
@@ -388,6 +403,25 @@ import { createRootRouteWithContext } from '@tanstack/solid-router'
 export const Route = createRootRouteWithContext<{
   fetchPosts: typeof fetchPosts
 }>()() // NOTE: the double call is on purpose, since createRootRouteWithContext is a factory ;)
+```
+
+# Svelte
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRouteWithContext } from '@tanstack/svelte-router'
+
+  // Create a root route using the createRootRouteWithContext<{...}>() function and pass it whatever types you would like to be available in your router context.
+  export const Route = createRootRouteWithContext<{
+    fetchPosts: typeof fetchPosts
+  }>()() // NOTE: the double call is on purpose, since createRootRouteWithContext is a factory ;)
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
 ```
 
 <!-- ::end:framework -->

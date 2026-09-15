@@ -39,6 +39,18 @@ const memoryHistory = createMemoryHistory({
 const router = createRouter({ routeTree, history: memoryHistory })
 ```
 
+# Svelte
+
+```ts
+import { createMemoryHistory, createRouter } from '@tanstack/svelte-router'
+
+const memoryHistory = createMemoryHistory({
+  initialEntries: ['/'], // Pass your initial url
+})
+
+const router = createRouter({ routeTree, history: memoryHistory })
+```
+
 <!-- ::end:framework -->
 
 ## Browser Routing
@@ -71,6 +83,16 @@ const hashHistory = createHashHistory()
 const router = createRouter({ routeTree, history: hashHistory })
 ```
 
+# Svelte
+
+```ts
+import { createHashHistory, createRouter } from '@tanstack/svelte-router'
+
+const hashHistory = createHashHistory()
+
+const router = createRouter({ routeTree, history: hashHistory })
+```
+
 <!-- ::end:framework -->
 
 ## Memory Routing
@@ -95,6 +117,18 @@ const router = createRouter({ routeTree, history: memoryHistory })
 
 ```ts
 import { createMemoryHistory, createRouter } from '@tanstack/solid-router'
+
+const memoryHistory = createMemoryHistory({
+  initialEntries: ['/'], // Pass your initial url
+})
+
+const router = createRouter({ routeTree, history: memoryHistory })
+```
+
+# Svelte
+
+```ts
+import { createMemoryHistory, createRouter } from '@tanstack/svelte-router'
 
 const memoryHistory = createMemoryHistory({
   initialEntries: ['/'], // Pass your initial url

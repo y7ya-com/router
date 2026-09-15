@@ -87,6 +87,24 @@ export default defineConfig({
 })
 ```
 
+# Svelte
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+
+export default defineConfig({
+  plugins: [
+    tanstackRouter({
+      target: 'svelte',
+      virtualRouteConfig: './routes.ts',
+    }),
+    svelte(),
+  ],
+})
+```
+
 <!-- ::end:framework -->
 
 Or, you choose to define the virtual routes directly in the configuration:
@@ -143,6 +161,26 @@ export default defineConfig({
   plugins: [
     tanstackRouter({ virtualRouteConfig: routes, target: 'solid' }),
     solid(),
+  ],
+})
+```
+
+# Svelte
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import { rootRoute } from '@tanstack/virtual-file-routes'
+
+const routes = rootRoute('root.svelte', [
+  // ... the rest of your virtual route tree
+])
+
+export default defineConfig({
+  plugins: [
+    tanstackRouter({ virtualRouteConfig: routes, target: 'svelte' }),
+    svelte(),
   ],
 })
 ```

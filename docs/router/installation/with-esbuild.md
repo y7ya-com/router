@@ -8,6 +8,7 @@ To use file-based routing with **Esbuild**, you'll need to install the `@tanstac
 
 react: @tanstack/router-plugin
 solid: @tanstack/router-plugin
+svelte: @tanstack/router-plugin
 
 <!-- ::end:tabs -->
 
@@ -67,6 +68,28 @@ if (isDev) {
 ```
 
 Or, you can clone our [Quickstart Esbuild example](https://github.com/TanStack/router/tree/main/examples/solid/quickstart-esbuild-file-based) and get started.
+
+# Svelte
+
+```ts title="esbuild.config.js"
+import sveltePlugin from 'esbuild-svelte'
+import { tanstackRouter } from '@tanstack/router-plugin/esbuild'
+
+export default {
+  // ...
+  conditions: ['svelte', 'browser'],
+  mainFields: ['svelte', 'browser', 'module', 'main'],
+  plugins: [
+    sveltePlugin({
+      compilerOptions: { css: 'injected' },
+    }),
+    tanstackRouter({
+      target: 'svelte',
+      autoCodeSplitting: true,
+    }),
+  ],
+}
+```
 
 <!-- ::end:framework -->
 

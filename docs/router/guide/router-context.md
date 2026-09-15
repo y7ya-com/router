@@ -73,6 +73,34 @@ const router = createRouter({
 })
 ```
 
+# Svelte
+
+```ts
+import {
+  createRootRouteWithContext,
+  createRouter,
+} from '@tanstack/svelte-router'
+import App from './App.svelte'
+
+interface MyRouterContext {
+  user: User
+}
+
+// Use the routerContext to create your root route
+const rootRoute = createRootRouteWithContext<MyRouterContext>()({
+  component: App,
+})
+
+const routeTree = rootRoute.addChildren([
+  // ...
+])
+
+// Use the routerContext to create your router
+const router = createRouter({
+  routeTree,
+})
+```
+
 <!-- ::end:framework -->
 
 > [!TIP]
@@ -108,6 +136,23 @@ const router = createRouter({
 
 ```tsx
 import { createRouter } from '@tanstack/solid-router'
+
+// Use the routerContext you created to create your router
+const router = createRouter({
+  routeTree,
+  context: {
+    user: {
+      id: '123',
+      name: 'John Doe',
+    },
+  },
+})
+```
+
+# Svelte
+
+```ts
+import { createRouter } from '@tanstack/svelte-router'
 
 // Use the routerContext you created to create your router
 const router = createRouter({
@@ -166,6 +211,32 @@ function useAuth() {
   }, [])
 
   return user()
+}
+```
+
+# Svelte
+
+```ts title="src/useAuth.svelte.ts"
+import { useRouter } from '@tanstack/svelte-router'
+
+export function useAuth() {
+  const router = useRouter()
+  let user = $state<User | null>(null)
+
+  $effect(() => {
+    const unsubscribe = auth.onAuthStateChanged((nextUser) => {
+      user = nextUser
+      router.invalidate()
+    })
+
+    return unsubscribe
+  })
+
+  return {
+    get current() {
+      return user
+    },
+  }
 }
 ```
 
@@ -250,6 +321,34 @@ import {
   createRootRouteWithContext,
   createRouter,
 } from '@tanstack/solid-router'
+
+interface MyRouterContext {
+  queryClient: QueryClient
+}
+
+const rootRoute = createRootRouteWithContext<MyRouterContext>()({
+  component: App,
+})
+
+const queryClient = new QueryClient()
+
+const router = createRouter({
+  routeTree: rootRoute,
+  context: {
+    queryClient,
+  },
+})
+```
+
+# Svelte
+
+```ts
+import {
+  createRootRouteWithContext,
+  createRouter,
+} from '@tanstack/svelte-router'
+import { QueryClient } from '@tanstack/svelte-query'
+import App from './App.svelte'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -491,6 +590,71 @@ export const Route = createFileRoute('/todos')({
     context.bar // true
   },
 })
+```
+
+<!-- ::end:tabs -->
+
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRouteWithContext } from '@tanstack/svelte-router'
+
+  interface MyRouterContext {
+    foo: boolean
+  }
+
+  export const Route = createRootRouteWithContext<MyRouterContext>()({})
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+</script>
+
+<Outlet />
+```
+
+<!-- ::end:tabs -->
+
+<!-- ::start:tabs variant="files" -->
+
+```ts title="src/router.ts"
+import { createRouter } from '@tanstack/svelte-router'
+
+import { routeTree } from './routeTree.gen'
+
+const router = createRouter({
+  routeTree,
+  context: {
+    foo: true,
+  },
+})
+```
+
+<!-- ::end:tabs -->
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="src/routes/todos.svelte"
+<script module lang="ts">
+  import { createFileRoute } from '@tanstack/svelte-router'
+
+  export const Route = createFileRoute('/todos')({
+    beforeLoad: () => {
+      return {
+        bar: true,
+      }
+    },
+    loader: ({ context }) => {
+      context.foo // true
+      context.bar // true
+    },
+  })
+</script>
+
+<h1>Todos</h1>
 ```
 
 <!-- ::end:tabs -->

@@ -107,4 +107,10 @@ Feature/Capability Key:
 
 We don't have a comparison table for Solid just yet. If you're interested in helping us create one, please reach out in the [TanStack Discord](https://tanstack.com/discord) or open a PR with your proposed comparison!
 
+# Svelte
+
+---
+
+We don't have a comparison table for Svelte just yet. If you're interested in helping us create one, please reach out in the [TanStack Discord](https://tanstack.com/discord) or open a PR with your proposed comparison!
+
 <!-- ::end:framework -->

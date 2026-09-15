@@ -8,6 +8,7 @@ To use file-based routing with **Webpack**, you'll need to install the `@tanstac
 
 react: @tanstack/router-plugin
 solid: @tanstack/router-plugin
+svelte: @tanstack/router-plugin
 
 <!-- ::end:tabs -->
 
@@ -59,6 +60,23 @@ And in the .babelrc (SWC doesn't support solid-js, see [here](https://www.answer
 ```
 
 Or, for a full webpack.config.js, you can clone our [Quickstart Webpack example](https://github.com/TanStack/router/tree/main/examples/solid/quickstart-webpack-file-based) and get started.
+
+# Svelte
+
+```ts title="webpack.config.ts"
+import { tanstackRouter } from '@tanstack/router-plugin/webpack'
+
+export default {
+  plugins: [
+    tanstackRouter({
+      target: 'svelte',
+      autoCodeSplitting: true,
+    }),
+  ],
+}
+```
+
+Your webpack configuration also needs to compile `.svelte` files, for example with [`svelte-loader`](https://github.com/sveltejs/svelte-loader).
 
 <!-- ::end:framework -->
 

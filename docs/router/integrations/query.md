@@ -21,6 +21,7 @@ The TanStack query integration is a separate package that you need to install:
 
 react: @tanstack/react-router-ssr-query
 solid: @tanstack/solid-router-ssr-query
+svelte: @tanstack/svelte-router-ssr-query
 
 <!-- ::end:tabs -->
 

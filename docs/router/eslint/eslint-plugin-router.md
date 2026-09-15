@@ -13,6 +13,7 @@ The plugin is a separate package that you need to install:
 
 react: @tanstack/eslint-plugin-router
 solid: @tanstack/eslint-plugin-router
+svelte: @tanstack/eslint-plugin-router
 
 <!-- ::end:tabs -->
 

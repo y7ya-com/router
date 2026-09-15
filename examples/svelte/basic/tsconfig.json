@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "types": ["svelte"],
+    "allowJs": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.svelte", "*.config.*"]
+}

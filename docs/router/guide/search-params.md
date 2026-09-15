@@ -645,6 +645,25 @@ export const Route = createRootRoute({
 })
 ```
 
+# Svelte
+
+```ts
+import { z } from 'zod'
+import { createRootRoute, retainSearchParams } from '@tanstack/svelte-router'
+import { zodValidator } from '@tanstack/zod-adapter'
+
+const searchSchema = z.object({
+  rootValue: z.string().optional(),
+})
+
+export const Route = createRootRoute({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    middlewares: [retainSearchParams(['rootValue'])],
+  },
+})
+```
+
 <!-- ::end:framework -->
 
 Another common use case is to strip out search params from links if their default value is set. TanStack Router provides a generic implementation for this use case via `stripSearchParams`:
@@ -682,6 +701,32 @@ export const Route = createFileRoute('/hello')({
 ```tsx
 import { z } from 'zod'
 import { createFileRoute, stripSearchParams } from '@tanstack/solid-router'
+import { zodValidator } from '@tanstack/zod-adapter'
+
+const defaultValues = {
+  one: 'abc',
+  two: 'xyz',
+}
+
+const searchSchema = z.object({
+  one: z.string().default(defaultValues.one),
+  two: z.string().default(defaultValues.two),
+})
+
+export const Route = createFileRoute('/hello')({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    // strip default values
+    middlewares: [stripSearchParams(defaultValues)],
+  },
+})
+```
+
+# Svelte
+
+```ts
+import { z } from 'zod'
+import { createFileRoute, stripSearchParams } from '@tanstack/svelte-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 
 const defaultValues = {
@@ -749,6 +794,36 @@ import {
   retainSearchParams,
   stripSearchParams,
 } from '@tanstack/solid-router'
+import { z } from 'zod'
+import { zodValidator } from '@tanstack/zod-adapter'
+
+const defaultValues = ['foo', 'bar']
+
+export const Route = createFileRoute('/search')({
+  validateSearch: zodValidator(
+    z.object({
+      retainMe: z.string().optional(),
+      arrayWithDefaults: z.string().array().default(defaultValues),
+      required: z.string(),
+    }),
+  ),
+  search: {
+    middlewares: [
+      retainSearchParams(['retainMe']),
+      stripSearchParams({ arrayWithDefaults: defaultValues }),
+    ],
+  },
+})
+```
+
+# Svelte
+
+```ts
+import {
+  createFileRoute,
+  retainSearchParams,
+  stripSearchParams,
+} from '@tanstack/svelte-router'
 import { z } from 'zod'
 import { zodValidator } from '@tanstack/zod-adapter'
 

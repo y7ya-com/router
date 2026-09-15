@@ -11,6 +11,7 @@ To use file-based routing with the TanStack Router CLI, you'll need to install t
 
 react: @tanstack/router-cli
 solid: @tanstack/router-cli
+svelte: @tanstack/router-cli
 
 <!-- ::end:tabs -->
 
@@ -41,6 +42,12 @@ If you are using TypeScript, you should also add the following options to your `
   }
 }
 ```
+
+With that, you're all set to start using file-based routing with TanStack Router.
+
+# Svelte
+
+No additional `tsconfig.json` options are required. Route files are `.svelte` components, so type-check them with [`svelte-check`](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check).
 
 With that, you're all set to start using file-based routing with TanStack Router.
 
@@ -131,6 +138,18 @@ When using the TanStack Router CLI for File-based routing, it comes with some sa
   "routeFileIgnorePrefix": "-",
   "quoteStyle": "single",
   "target": "solid"
+}
+```
+
+# Svelte
+
+```json
+{
+  "routesDirectory": "./src/routes",
+  "generatedRouteTree": "./src/routeTree.gen.ts",
+  "routeFileIgnorePrefix": "-",
+  "quoteStyle": "single",
+  "target": "svelte"
 }
 ```
 

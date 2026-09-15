@@ -56,6 +56,22 @@ const router = createRouter({
 })
 ```
 
+# Svelte
+
+```ts
+import {
+  createRouter,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/svelte-router'
+
+const router = createRouter({
+  // ...
+  parseSearch: parseSearchWith(JSON.parse),
+  stringifySearch: stringifySearchWith(JSON.stringify),
+})
+```
+
 <!-- ::end:framework -->
 
 However, this default behavior may not be suitable for all use cases. For example, you may want to use a different serialization format, such as base64 encoding, or you may want to use a purpose-built serialization/deserialization library, like [query-string](https://github.com/sindresorhus/query-string), [JSURL2](https://github.com/wmertens/jsurl2), or [Zipson](https://jgranstrom.github.io/zipson/).
@@ -145,6 +161,41 @@ function encodeToBinary(str: string): string {
 }
 ```
 
+# Svelte
+
+```ts
+import {
+  createRouter,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/svelte-router'
+
+const router = createRouter({
+  parseSearch: parseSearchWith((value) => JSON.parse(decodeFromBinary(value))),
+  stringifySearch: stringifySearchWith((value) =>
+    encodeToBinary(JSON.stringify(value)),
+  ),
+})
+
+function decodeFromBinary(str: string): string {
+  return decodeURIComponent(
+    Array.prototype.map
+      .call(atob(str), function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      })
+      .join(''),
+  )
+}
+
+function encodeToBinary(str: string): string {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode(parseInt(p1, 16))
+    }),
+  )
+}
+```
+
 <!-- ::end:framework -->
 
 > [⚠️ Why does this snippet not use atob/btoa?](#safe-binary-encodingdecoding)
@@ -206,6 +257,31 @@ const router = createRouter({
 })
 ```
 
+# Svelte
+
+```ts
+import {
+  createRouter,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/svelte-router'
+import qs from 'query-string'
+
+const router = createRouter({
+  // ...
+  stringifySearch: stringifySearchWith((value) =>
+    qs.stringify(value, {
+      // ...options
+    }),
+  ),
+  parseSearch: parseSearchWith((value) =>
+    qs.parse(value, {
+      // ...options
+    }),
+  ),
+})
+```
+
 <!-- ::end:framework -->
 
 So, if we were to turn the previous object into a search string using this configuration, it would look like this:
@@ -245,6 +321,23 @@ import {
   parseSearchWith,
   stringifySearchWith,
 } from '@tanstack/solid-router'
+import { parse, stringify } from 'jsurl2'
+
+const router = createRouter({
+  // ...
+  parseSearch: parseSearchWith(parse),
+  stringifySearch: stringifySearchWith(stringify),
+})
+```
+
+# Svelte
+
+```ts
+import {
+  createRouter,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/svelte-router'
 import { parse, stringify } from 'jsurl2'
 
 const router = createRouter({
@@ -312,6 +405,42 @@ import {
   parseSearchWith,
   stringifySearchWith,
 } from '@tanstack/solid-router'
+import { stringify, parse } from 'zipson'
+
+const router = createRouter({
+  parseSearch: parseSearchWith((value) => parse(decodeFromBinary(value))),
+  stringifySearch: stringifySearchWith((value) =>
+    encodeToBinary(stringify(value)),
+  ),
+})
+
+function decodeFromBinary(str: string): string {
+  return decodeURIComponent(
+    Array.prototype.map
+      .call(atob(str), function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      })
+      .join(''),
+  )
+}
+
+function encodeToBinary(str: string): string {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode(parseInt(p1, 16))
+    }),
+  )
+}
+```
+
+# Svelte
+
+```ts
+import {
+  createRouter,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/svelte-router'
 import { stringify, parse } from 'zipson'
 
 const router = createRouter({

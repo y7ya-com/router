@@ -28,6 +28,16 @@ const router = createRouter({
 })
 ```
 
+# Svelte
+
+```ts title="src/router.ts"
+import { createRouter } from '@tanstack/svelte-router'
+
+const router = createRouter({
+  // ...
+})
+```
+
 <!-- ::end:framework -->
 
 ## Route Tree
@@ -78,6 +88,17 @@ declare module '@tanstack/react-router' {
 
 ```tsx title="src/router.tsx"
 declare module '@tanstack/solid-router' {
+  interface Register {
+    // This infers the type of our router and registers it across your entire project
+    router: typeof router
+  }
+}
+```
+
+# Svelte
+
+```ts title="src/router.ts"
+declare module '@tanstack/svelte-router' {
   interface Register {
     // This infers the type of our router and registers it across your entire project
     router: typeof router

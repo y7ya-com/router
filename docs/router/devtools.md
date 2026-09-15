@@ -16,6 +16,7 @@ The devtools are a separate package that you need to install:
 
 react: @tanstack/react-router-devtools
 solid: @tanstack/solid-router-devtools
+svelte: @tanstack/svelte-router-devtools
 
 <!-- ::end:tabs -->
 
@@ -33,6 +34,12 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 ```tsx
 import { TanStackRouterDevtools } from '@tanstack/solid-router-devtools'
+```
+
+# Svelte
+
+```ts
+import { TanStackRouterDevtools } from '@tanstack/svelte-router-devtools'
 ```
 
 <!-- ::end:framework -->
@@ -53,6 +60,12 @@ import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 
 ```tsx
 import { TanStackRouterDevtoolsInProd } from '@tanstack/solid-router-devtools'
+```
+
+# Svelte
+
+```ts
+import { TanStackRouterDevtoolsInProd } from '@tanstack/svelte-router-devtools'
 ```
 
 <!-- ::end:framework -->
@@ -103,6 +116,28 @@ export const Route = createRootRoute({
 
 <!-- ::end:tabs -->
 
+# Svelte
+
+<!-- ::start:tabs variant="files" -->
+
+```svelte title="src/routes/__root.svelte"
+<script module lang="ts">
+  import { createRootRoute } from '@tanstack/svelte-router'
+
+  export const Route = createRootRoute()
+</script>
+
+<script lang="ts">
+  import { Outlet } from '@tanstack/svelte-router'
+  import { TanStackRouterDevtools } from '@tanstack/svelte-router-devtools'
+</script>
+
+<Outlet />
+<TanStackRouterDevtools />
+```
+
+<!-- ::end:tabs -->
+
 <!-- ::end:framework -->
 
 ## Manually passing the Router Instance
@@ -135,6 +170,13 @@ function App() {
     </>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/App.svelte"
+<RouterProvider {router} />
+<TanStackRouterDevtools {router} />
 ```
 
 <!-- ::end:framework -->
@@ -171,6 +213,13 @@ function App() {
     </>
   )
 }
+```
+
+# Svelte
+
+```svelte title="src/App.svelte"
+<RouterProvider {router} />
+<TanStackRouterDevtools initialIsOpen={false} />
 ```
 
 <!-- ::end:framework -->
@@ -216,6 +265,12 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/solid-router-devtools'
 ```
 
+# Svelte
+
+```ts
+import { TanStackRouterDevtoolsPanel } from '@tanstack/svelte-router-devtools'
+```
+
 <!-- ::end:framework -->
 
 It can then be attached to provided shadow DOM target:
@@ -238,6 +293,12 @@ It can then be attached to provided shadow DOM target:
   shadowDOMTarget={shadowContainer}
   router={router}
 />
+```
+
+# Svelte
+
+```svelte
+<TanStackRouterDevtoolsPanel shadowDOMTarget={shadowContainer} {router} />
 ```
 
 <!-- ::end:framework -->
@@ -288,6 +349,19 @@ function App() {
 }
 ```
 
+# Svelte
+
+```svelte title="src/App.svelte"
+<script lang="ts">
+  import { RouterProvider } from '@tanstack/svelte-router'
+  import { TanStackRouterDevtoolsPanel } from '@tanstack/svelte-router-devtools'
+  import { router } from './router'
+</script>
+
+<RouterProvider {router} />
+<TanStackRouterDevtoolsPanel {router} style={styles} {className} />
+```
+
 <!-- ::end:framework -->
 
 ### DevtoolsPanel Options
@@ -310,6 +384,13 @@ function App() {
   - The standard Solid style object used to style a component with inline styles.
 - `class?: string`
   - The standard Solid class property used to style a component with classes.
+
+# Svelte
+
+- `style?: StyleObject`
+  - A style object used to style the panel with inline styles.
+- `className?: string`
+  - A class name used to style the panel with classes.
 
 <!-- ::end:framework -->
 
