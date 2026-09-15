@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "types": ["svelte", "node", "jsx-svelte/jsx"],
+    "paths": {
+      "@tanstack/svelte-router": ["./src/index.ts"],
+      "@tanstack/svelte-router/ssr/server": ["./src/ssr/server.ts"],
+      "@tanstack/svelte-router/ssr/client": ["./src/ssr/client.ts"]
+    },
+    "verbatimModuleSyntax": true
+  },
+  "include": [
+    "src/**/*.js",
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "tests/**/*.js",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "tests/**/*.svelte",
+    "eslint.config.ts",
+    "svelte.config.js",
+    "vite.config.ts"
+  ],
+  "exclude": ["tests/typing/**"]
+}

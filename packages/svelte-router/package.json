@@ -1,0 +1,115 @@
+{
+  "name": "@tanstack/svelte-router",
+  "version": "0.0.0",
+  "description": "Modern and scalable routing for Svelte applications",
+  "license": "MIT",
+  "author": "Tanner Linsley",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TanStack/router.git",
+    "directory": "packages/svelte-router"
+  },
+  "homepage": "https://tanstack.com/router",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/tannerlinsley"
+  },
+  "keywords": [
+    "tanstack",
+    "tanstack-router",
+    "svelte",
+    "svelte5",
+    "svelte-router",
+    "router",
+    "routing",
+    "file-based-routing",
+    "type-safe",
+    "type-safe-router",
+    "client-side-routing",
+    "spa"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist && rimraf ./coverage",
+    "test:eslint": "eslint",
+    "test:types": "svelte-check --tsconfig ./tsconfig.svelte-check.json && svelte-check --tsconfig ./tsconfig.types.json && pnpm run \"/^test:types:ts[0-9]{2}$/\"",
+    "test:types:ts56": "node ../../node_modules/typescript56/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts57": "node ../../node_modules/typescript57/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts58": "node ../../node_modules/typescript58/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts59": "node ../../node_modules/typescript59/lib/tsc.js --noEmit -p tsconfig.tests.json",
+    "test:types:ts60": "tsc6 --noEmit -p tsconfig.tests.json",
+    "test:types:ts70": "tsc --noEmit -p tsconfig.tests.json",
+    "test:unit": "vitest && vitest --mode server",
+    "test:unit:dev": "pnpm run test:unit --watch --hideSkippedTests",
+    "test:build": "publint --strict && attw --ignore-rules no-resolution internal-resolution-error --pack .",
+    "build": "svelte-package --input ./src --output ./dist",
+    "test": "pnpm run test:unit",
+    "test:unit:ui": "vitest --ui --watch"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "svelte": {
+          "development": "./dist/index.dev.js",
+          "default": "./dist/index.js"
+        },
+        "development": "./dist/index.dev.js",
+        "default": "./dist/index.js"
+      }
+    },
+    "./ssr/server": {
+      "import": {
+        "types": "./dist/ssr/server.d.ts",
+        "svelte": "./dist/ssr/server.js",
+        "default": "./dist/ssr/server.js"
+      }
+    },
+    "./ssr/client": {
+      "import": {
+        "types": "./dist/ssr/client.d.ts",
+        "svelte": "./dist/ssr/client.js",
+        "default": "./dist/ssr/client.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "@tanstack/history": "workspace:*",
+    "@tanstack/router-core": "workspace:*",
+    "@tanstack/svelte-store": "^0.12.0",
+    "isbot": "catalog:"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@sveltejs/package": "^2.3.7",
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/svelte": "^5.2.4",
+    "@types/node": ">=20",
+    "@typescript-eslint/parser": "^8.44.1",
+    "combinate": "^1.1.11",
+    "eslint-plugin-svelte": "^3.22.0",
+    "jsdom": "catalog:",
+    "jsx-svelte": "^0.1.0",
+    "publint": "catalog:",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0",
+    "vite": "*",
+    "vitest": "catalog:",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

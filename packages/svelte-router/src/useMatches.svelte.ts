@@ -1,0 +1,161 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion --
+   See the note in `useMatch.svelte.ts`: `getContext()` types differently under
+   `svelte-check` than under plain `tsc`, so these assertions are load-bearing
+   even though the rule reports them as redundant. */
+import { getContext } from 'svelte'
+import { useRouterSelector } from './utils.js'
+import { useRouter } from './useRouter.js'
+import {
+  defaultNearestMatchContext,
+  nearestMatchContextKey,
+} from './matchContext.js'
+import type { Snippet } from 'svelte'
+import type { NearestMatchContextValue } from './matchContext.js'
+import type {
+  AnyRouter,
+  DeepPartial,
+  Expand,
+  MakeOptionalPathParams,
+  MakeOptionalSearchParams,
+  MakeRouteMatchUnion,
+  MaskOptions,
+  MatchRouteOptions,
+  RegisteredRouter,
+  ResolveRoute,
+  ToSubOptionsProps,
+} from '@tanstack/router-core'
+
+export interface UseMatchesBaseOptions<TRouter extends AnyRouter, TSelected> {
+  select?: (matches: Array<MakeRouteMatchUnion<TRouter>>) => TSelected
+}
+
+export type UseMatchesResult<
+  TRouter extends AnyRouter,
+  TSelected,
+> = unknown extends TSelected ? Array<MakeRouteMatchUnion<TRouter>> : TSelected
+
+export function useMatches<
+  TRouter extends AnyRouter = RegisteredRouter,
+  TSelected = unknown,
+>(
+  opts?: UseMatchesBaseOptions<TRouter, TSelected>,
+): { readonly current: UseMatchesResult<TRouter, TSelected> } {
+  const router = useRouter<TRouter>()
+  return useRouterSelector(router, router.stores.matches, (matches: any) => {
+    return opts?.select ? opts.select(matches) : matches
+  }) as { readonly current: UseMatchesResult<TRouter, TSelected> }
+}
+
+export function useParentMatches<
+  TRouter extends AnyRouter = RegisteredRouter,
+  TSelected = unknown,
+>(
+  opts?: UseMatchesBaseOptions<TRouter, TSelected>,
+): { readonly current: UseMatchesResult<TRouter, TSelected> } {
+  const ctx =
+    (getContext(nearestMatchContextKey) as
+      | NearestMatchContextValue
+      | undefined) ?? defaultNearestMatchContext
+
+  return useMatches({
+    select: (matches: Array<MakeRouteMatchUnion<TRouter>>) => {
+      const contextRouteId = ctx.routeId()
+      const sliced = matches.slice(
+        0,
+        matches.findIndex((d) => d.routeId === contextRouteId),
+      )
+      return opts?.select ? opts.select(sliced) : sliced
+    },
+  } as any) as { readonly current: UseMatchesResult<TRouter, TSelected> }
+}
+
+export function useChildMatches<
+  TRouter extends AnyRouter = RegisteredRouter,
+  TSelected = unknown,
+>(
+  opts?: UseMatchesBaseOptions<TRouter, TSelected>,
+): { readonly current: UseMatchesResult<TRouter, TSelected> } {
+  const ctx =
+    (getContext(nearestMatchContextKey) as
+      | NearestMatchContextValue
+      | undefined) ?? defaultNearestMatchContext
+
+  return useMatches({
+    select: (matches: Array<MakeRouteMatchUnion<TRouter>>) => {
+      const contextRouteId = ctx.routeId()
+      const sliced = matches.slice(
+        matches.findIndex((d) => d.routeId === contextRouteId) + 1,
+      )
+      return opts?.select ? opts.select(sliced) : sliced
+    },
+  } as any) as { readonly current: UseMatchesResult<TRouter, TSelected> }
+}
+
+export type UseMatchRouteOptions<
+  TRouter extends AnyRouter = RegisteredRouter,
+  TFrom extends string = string,
+  TTo extends string | undefined = undefined,
+  TMaskFrom extends string = TFrom,
+  TMaskTo extends string = '',
+> = ToSubOptionsProps<TRouter, TFrom, TTo> &
+  DeepPartial<MakeOptionalSearchParams<TRouter, TFrom, TTo>> &
+  DeepPartial<MakeOptionalPathParams<TRouter, TFrom, TTo>> &
+  MaskOptions<TRouter, TMaskFrom, TMaskTo> &
+  MatchRouteOptions
+
+export function useMatchRoute<TRouter extends AnyRouter = RegisteredRouter>() {
+  const router = useRouter()
+  // Re-evaluate whenever navigation state changes.
+  const locationSel = useRouterSelector(router, router.stores.location)
+  const resolvedLocationSel = useRouterSelector(
+    router,
+    router.stores.resolvedLocation,
+  )
+  const statusSel = useRouterSelector(router, router.stores.status)
+
+  return <
+    const TFrom extends string = string,
+    const TTo extends string | undefined = undefined,
+    const TMaskFrom extends string = TFrom,
+    const TMaskTo extends string = '',
+  >(
+    opts: UseMatchRouteOptions<TRouter, TFrom, TTo, TMaskFrom, TMaskTo>,
+  ): {
+    readonly current:
+      | false
+      | Expand<ResolveRoute<TRouter, TFrom, TTo>['types']['allParams']>
+  } => {
+    const value = $derived.by(() => {
+      void locationSel.current
+      void resolvedLocationSel.current
+      void statusSel.current
+      const { pending, caseSensitive, fuzzy, includeSearch, ...rest } = opts
+      return router.matchRoute(rest as any, {
+        pending,
+        caseSensitive,
+        fuzzy,
+        includeSearch,
+      })
+    })
+    return {
+      get current() {
+        return value as any
+      },
+    }
+  }
+}
+
+export type MakeMatchRouteOptions<
+  TRouter extends AnyRouter = RegisteredRouter,
+  TFrom extends string = string,
+  TTo extends string | undefined = undefined,
+  TMaskFrom extends string = TFrom,
+  TMaskTo extends string = '',
+> = UseMatchRouteOptions<TRouter, TFrom, TTo, TMaskFrom, TMaskTo> & {
+  /** Rendered when the route matches. */
+  children?: Snippet<[]>
+  /** Rendered with the matched params (or `false`) whether or not it matches. */
+  match?: Snippet<
+    [false | Expand<ResolveRoute<TRouter, TFrom, TTo>['types']['allParams']>]
+  >
+}
