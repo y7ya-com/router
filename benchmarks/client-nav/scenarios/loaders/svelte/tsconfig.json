@@ -1,0 +1,19 @@
+{
+  "extends": "../../../../../tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "types": ["node", "svelte", "vite/client", "vitest/globals"]
+  },
+  "include": [
+    "speed.bench.ts",
+    "speed.flame.ts",
+    "setup.ts",
+    "vite.config.ts",
+    "../shared.ts",
+    "../../harness.ts",
+    "../../../setup-helpers.ts",
+    "../../../jsdom.ts",
+    "../../../vitest.setup.ts",
+    "./src/**/*"
+  ]
+}

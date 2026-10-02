@@ -6,32 +6,39 @@
     "build:react": "NODE_ENV=production vite build --config ./react/vite.config.ts",
     "build:solid": "NODE_ENV=production vite build --config ./solid/vite.config.ts",
     "build:vue": "NODE_ENV=production vite build --config ./vue/vite.config.ts",
+    "build:svelte": "NODE_ENV=production vite build --config ./svelte/vite.config.ts",
     "test:flame:react": "NODE_ENV=production flame run --md-format=detailed --delay=none --node-options=\"--stack-size=65500\" ./react/speed.flame.ts",
     "test:flame:solid": "NODE_ENV=production flame run --md-format=detailed --delay=none --node-options=\"--stack-size=65500\" ./solid/speed.flame.ts",
     "test:flame:vue": "NODE_ENV=production flame run --md-format=detailed --delay=none --node-options=\"--stack-size=65500\" ./vue/speed.flame.ts",
+    "test:flame:svelte": "NODE_ENV=production flame run --md-format=detailed --delay=none --node-options=\"--stack-size=65500\" ./svelte/speed.flame.ts",
     "test:perf": "NODE_ENV=production vitest bench --config ./vitest.config.ts",
     "test:perf:react": "NODE_ENV=production vitest bench --config ./vitest.react.config.ts",
     "test:perf:solid": "NODE_ENV=production vitest bench --config ./vitest.solid.config.ts",
     "test:perf:vue": "NODE_ENV=production vitest bench --config ./vitest.vue.config.ts",
-    "test:types": "pnpm run test:types:react && pnpm run test:types:solid && pnpm run test:types:vue",
+    "test:perf:svelte": "NODE_ENV=production vitest bench --config ./vitest.svelte.config.ts",
+    "test:types": "pnpm run test:types:react && pnpm run test:types:solid && pnpm run test:types:vue && pnpm run test:types:svelte",
     "test:types:react": "tsc -p ./react/tsconfig.json --noEmit",
     "test:types:solid": "tsc -p ./solid/tsconfig.json --noEmit",
-    "test:types:vue": "tsc -p ./vue/tsconfig.json --noEmit"
+    "test:types:vue": "tsc -p ./vue/tsconfig.json --noEmit",
+    "test:types:svelte": "tsc -p ./svelte/tsconfig.json --noEmit"
   },
   "dependencies": {
     "@tanstack/history": "workspace:^",
     "@tanstack/react-router": "workspace:^",
     "@tanstack/router-core": "workspace:^",
     "@tanstack/solid-router": "workspace:^",
+    "@tanstack/svelte-router": "workspace:^",
     "@tanstack/vue-router": "workspace:^",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "solid-js": "^1.9.10",
+    "svelte": "^5.0.0",
     "vue": "^3.5.16"
   },
   "devDependencies": {
     "@platformatic/flame": "^1.6.0",
     "@codspeed/vitest-plugin": "^5.7.1",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tanstack/router-plugin": "workspace:^",
     "@testing-library/react": "^16.2.0",
     "@vitejs/plugin-react": "^6.0.1",
@@ -135,12 +142,41 @@
           }
         ]
       },
+      "build:svelte": {
+        "cache": false,
+        "dependsOn": [
+          {
+            "projects": [
+              "@tanstack/svelte-router"
+            ],
+            "target": "build"
+          },
+          {
+            "projects": [
+              "@benchmarks/client-nav-async-pipeline-svelte",
+              "@benchmarks/client-nav-control-flow-svelte",
+              "@benchmarks/client-nav-head-svelte",
+              "@benchmarks/client-nav-history-svelte",
+              "@benchmarks/client-nav-links-svelte",
+              "@benchmarks/client-nav-loaders-svelte",
+              "@benchmarks/client-nav-mount-svelte",
+              "@benchmarks/client-nav-nested-params-svelte",
+              "@benchmarks/client-nav-preload-svelte",
+              "@benchmarks/client-nav-rewrites-svelte",
+              "@benchmarks/client-nav-route-tree-scale-svelte",
+              "@benchmarks/client-nav-search-params-svelte"
+            ],
+            "target": "build:client"
+          }
+        ]
+      },
       "test:perf": {
         "cache": false,
         "dependsOn": [
           "build:react",
           "build:solid",
-          "build:vue"
+          "build:vue",
+          "build:svelte"
         ]
       },
       "test:flame:react": {
@@ -161,6 +197,12 @@
           "build:vue"
         ]
       },
+      "test:flame:svelte": {
+        "cache": false,
+        "dependsOn": [
+          "build:svelte"
+        ]
+      },
       "test:perf:react": {
         "cache": false,
         "dependsOn": [
@@ -179,6 +221,12 @@
           "build:vue"
         ]
       },
+      "test:perf:svelte": {
+        "cache": false,
+        "dependsOn": [
+          "build:svelte"
+        ]
+      },
       "test:types": {
         "inputs": [
           "default",
@@ -194,41 +242,53 @@
               "@benchmarks/client-nav-async-pipeline-react",
               "@benchmarks/client-nav-async-pipeline-solid",
               "@benchmarks/client-nav-async-pipeline-vue",
+              "@benchmarks/client-nav-async-pipeline-svelte",
               "@benchmarks/client-nav-control-flow-react",
               "@benchmarks/client-nav-control-flow-solid",
               "@benchmarks/client-nav-control-flow-vue",
+              "@benchmarks/client-nav-control-flow-svelte",
               "@benchmarks/client-nav-head-react",
               "@benchmarks/client-nav-head-solid",
               "@benchmarks/client-nav-head-vue",
+              "@benchmarks/client-nav-head-svelte",
               "@benchmarks/client-nav-history-react",
               "@benchmarks/client-nav-history-solid",
               "@benchmarks/client-nav-history-vue",
+              "@benchmarks/client-nav-history-svelte",
               "@benchmarks/client-nav-hydration-react",
               "@benchmarks/client-nav-hydration-solid",
               "@benchmarks/client-nav-links-react",
               "@benchmarks/client-nav-links-solid",
               "@benchmarks/client-nav-links-vue",
+              "@benchmarks/client-nav-links-svelte",
               "@benchmarks/client-nav-loaders-react",
               "@benchmarks/client-nav-loaders-solid",
               "@benchmarks/client-nav-loaders-vue",
+              "@benchmarks/client-nav-loaders-svelte",
               "@benchmarks/client-nav-mount-react",
               "@benchmarks/client-nav-mount-solid",
               "@benchmarks/client-nav-mount-vue",
+              "@benchmarks/client-nav-mount-svelte",
               "@benchmarks/client-nav-nested-params-react",
               "@benchmarks/client-nav-nested-params-solid",
               "@benchmarks/client-nav-nested-params-vue",
+              "@benchmarks/client-nav-nested-params-svelte",
               "@benchmarks/client-nav-preload-react",
               "@benchmarks/client-nav-preload-solid",
               "@benchmarks/client-nav-preload-vue",
+              "@benchmarks/client-nav-preload-svelte",
               "@benchmarks/client-nav-rewrites-react",
               "@benchmarks/client-nav-route-tree-scale-react",
               "@benchmarks/client-nav-rewrites-solid",
               "@benchmarks/client-nav-route-tree-scale-solid",
               "@benchmarks/client-nav-rewrites-vue",
+              "@benchmarks/client-nav-rewrites-svelte",
               "@benchmarks/client-nav-route-tree-scale-vue",
+              "@benchmarks/client-nav-route-tree-scale-svelte",
               "@benchmarks/client-nav-search-params-react",
               "@benchmarks/client-nav-search-params-solid",
-              "@benchmarks/client-nav-search-params-vue"
+              "@benchmarks/client-nav-search-params-vue",
+              "@benchmarks/client-nav-search-params-svelte"
             ],
             "target": "test:types:client"
           }

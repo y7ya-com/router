@@ -1,0 +1,14 @@
+{
+  "extends": "../../../../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "svelte", "vite/client", "vitest/globals"]
+  },
+  "include": [
+    "speed*.bench.ts",
+    "vite.config.ts",
+    "../../../bench-utils.ts",
+    "../shared-bench.ts",
+    "../shared-data.ts",
+    "./src/**/*"
+  ]
+}

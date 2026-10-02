@@ -5,6 +5,7 @@ Cross-framework SSR request-loop benchmarks for:
 - `@tanstack/react-start`
 - `@tanstack/solid-start`
 - `@tanstack/vue-start`
+- `@tanstack/svelte-start`
 
 Each benchmark builds a Start app with file-based routes and runs Vitest benches against the built server handler.
 
@@ -13,7 +14,8 @@ Each benchmark builds a Start app with file-based routes and runs Vitest benches
 - `react/` - React Start baseline benchmark + Vitest config
 - `solid/` - Solid Start baseline benchmark + Vitest config
 - `vue/` - Vue Start baseline benchmark + Vitest config
-- `vitest.react.config.ts`, `vitest.solid.config.ts`, `vitest.vue.config.ts` - per-framework aggregate configs that run the baseline first, then scenario projects
+- `svelte/` - Svelte Start baseline benchmark + Vitest config
+- `vitest.react.config.ts`, `vitest.solid.config.ts`, `vitest.vue.config.ts`, `vitest.svelte.config.ts` - per-framework aggregate configs that run the baseline first, then scenario projects
 - `scenarios/<scenario>/<framework>/` - isolated scenario apps
 
 Scenario app layout:
@@ -29,6 +31,11 @@ scenarios/<scenario>/<framework>/
     routeTree.gen.ts
 ```
 
+Svelte apps use `src/router.ts` and `.svelte` file routes, with route options in
+`<script module>`. Svelte components cannot render `<html>`, `<head>`, or
+`<body>`; the Svelte Start server shell renders the document, so Svelte root
+routes render only `<Outlet />`.
+
 Each scenario uses one app per framework instead of sharing routes in the baseline app. This keeps route-tree size, middleware, Start options, and generated route trees isolated so one scenario cannot shift another scenario's numbers. The existing baseline apps and bench names stay stable for CodSpeed continuity.
 
 ## Scenario Responsibilities
@@ -37,7 +44,7 @@ Each scenario isolates one Start server-side responsibility so benchmark changes
 
 | Scenario                                 | Start server-side responsibility                                                                                                                                                                                          |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `react/`, `solid/`, `vue/` baseline apps | Document SSR for nested file routes, route matching, search parsing, and full-page HTML response generation.                                                                                                              |
+| Framework baseline apps (`<framework>/`) | Document SSR for nested file routes, route matching, search parsing, and full-page HTML response generation.                                                                                                              |
 | `assets`                                 | Per-request asset pipeline work: CSS inlining, CDN asset URL transforms with uncached manifest resolution, and response `Link` header collection for early hints.                                                         |
 | `before-load`                            | Nested `beforeLoad` execution: sequential per-match context building, context merging across matches, and context consumption by loaders during document SSR.                                                             |
 | `control-flow`                           | Loader-thrown `redirect`, `notFound`, plain errors, unmatched routes, and route `headers()` emission, including HTTP status selection, redirect `location` headers, route error boundaries, and not-found HTML rendering. |
@@ -67,6 +74,7 @@ Run framework-specific benchmarks:
 pnpm nx run @benchmarks/ssr:test:perf:react --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/ssr:test:perf:solid --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/ssr:test:perf:vue --outputStyle=stream --skipRemoteCache
+pnpm nx run @benchmarks/ssr:test:perf:svelte --outputStyle=stream --skipRemoteCache
 ```
 
 Build framework-specific benchmark apps:
@@ -75,6 +83,7 @@ Build framework-specific benchmark apps:
 pnpm nx run @benchmarks/ssr:build:react --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/ssr:build:solid --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/ssr:build:vue --outputStyle=stream --skipRemoteCache
+pnpm nx run @benchmarks/ssr:build:svelte --outputStyle=stream --skipRemoteCache
 ```
 
 Typecheck benchmark sources:
@@ -90,7 +99,19 @@ pnpm nx run @benchmarks/ssr-<scenario>-<framework>:build:ssr --outputStyle=strea
 pnpm nx run @benchmarks/ssr-<scenario>-<framework>:test:types:ssr --outputStyle=stream --skipRemoteCache
 ```
 
-Use `react`, `solid`, or `vue` for `<framework>`. The baseline projects use `@benchmarks/ssr-<framework>` without a scenario segment.
+Use `react`, `solid`, `vue`, or `svelte` for `<framework>`. The baseline projects use `@benchmarks/ssr-<framework>` without a scenario segment.
+
+Svelte `test:types:ssr` targets run `tsc`, which checks the TypeScript modules
+but not `.svelte` files.
+
+## Svelte streaming
+
+Svelte 5 renders the whole document in one pass and has no out-of-order markup
+streaming. In the `streaming` scenario the Svelte app sends the document first;
+`<Await>` renders nothing on the server, and the deferred values reach the
+client through the router's dehydration stream instead of as rendered HTML.
+The Svelte streaming numbers therefore measure less HTML rendering than the
+React, Solid, and Vue apps, which render the resolved deferred sections.
 
 ## Request Conventions
 

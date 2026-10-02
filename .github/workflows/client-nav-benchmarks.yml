@@ -48,6 +48,7 @@ jobs:
           - react
           - solid
           - vue
+          - svelte
         benchmark:
           - client-nav
           - ssr

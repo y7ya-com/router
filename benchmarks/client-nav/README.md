@@ -5,6 +5,7 @@ Cross-framework client-side CPU benchmarks for:
 - `@tanstack/react-router`
 - `@tanstack/solid-router`
 - `@tanstack/vue-router`
+- `@tanstack/svelte-router`
 
 The benchmarks run in jsdom against production builds of real apps, and are
 tracked in CI by CodSpeed (simulation mode).
@@ -17,8 +18,8 @@ tracked in CI by CodSpeed (simulation mode).
 
 ## Layout
 
-- `react/`, `solid/`, `vue/` - baseline benchmark (mixed navigation loop) + Vitest config
-- `vitest.react.config.ts`, `vitest.solid.config.ts`, `vitest.vue.config.ts` - per-framework aggregate configs that run the baseline first, then scenario projects
+- `react/`, `solid/`, `vue/`, `svelte/` - baseline benchmark (mixed navigation loop) + Vitest config
+- `vitest.react.config.ts`, `vitest.solid.config.ts`, `vitest.vue.config.ts`, `vitest.svelte.config.ts` - per-framework aggregate configs that run the baseline first, then scenario projects
 - `scenarios/harness.ts` - shared scenario runner (mount, link-click steps, `onRendered` synchronization)
 - `scenarios/<scenario>/shared.ts` - framework-agnostic scenario definition (workload data, step sequence, assertions, bench options)
 - `scenarios/<scenario>/<framework>/` - isolated scenario apps
@@ -46,27 +47,32 @@ route-tree size and router options isolated so one scenario cannot shift
 another scenario's numbers. The existing baseline apps and bench names stay
 stable for CodSpeed continuity.
 
+Svelte scenario apps use `src/main.ts` and `.svelte` route files that export
+their `Route` from a `<script module>` block. The generator lazy-loads a
+`.svelte` route file without that export, so navigation scenarios keep the
+export on every route file to load them eagerly like the other adapters.
+
 ## Scenario Responsibilities
 
 Each scenario isolates one client-side responsibility so benchmark changes can
 be attributed to a specific feature area.
 
-| Scenario                                 | Client-side responsibility                                                                                                                                                                                                                                                                                                           |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `react/`, `solid/`, `vue/` baseline apps | Mixed navigation loop: path params, search params, route context, and `useParams`/`useSearch`/`useLoaderData` selector subscriptions.                                                                                                                                                                                                |
-| `async-pipeline`                         | The router's async pipeline via counted 0ms timer hops: async loaders (transition-held navigation), async `beforeLoad` context, and parallel nested async loaders. Component-level `Await`/Suspense is excluded: React 19 throttles Suspense reveals by ~300ms wall-clock, which is inherently non-deterministic to benchmark.       |
-| `control-flow`                           | Loader-thrown `redirect` (including a 2-hop chain), `notFound()` with `notFoundComponent`, loader errors with `errorComponent`, and boundary reset on recovery navigation.                                                                                                                                                           |
-| `head`                                   | `HeadContent` per-navigation work: nested route `head()` evaluation, title/meta/link dedupe across matches, and head tag DOM updates during navigation.                                                                                                                                                                              |
-| `history`                                | History push/replace/back/forward traversal, location masking, registered-but-never-blocking `useBlocker`, and `useCanGoBack`/`useLocation` subscriptions.                                                                                                                                                                           |
-| `hydration`                              | Initial DOM hydration: execute the SSR payload, restore `beforeLoad` context and loader data, and hydrate 192 ordinary and eight hash-sensitive Links through their follow-up effects in React and Solid.                                                                                                                            |
-| `links`                                  | Per-navigation cost of ~200 mounted `<Link>`s: link prop building, active-state recompute across `activeOptions` variants, `activeProps` swaps, and `useMatchRoute` probes (the `MatchRoute` component is avoided: vue-router's implementation leaks one subscription per render).                                                   |
-| `loaders`                                | Client loader dispatch: always-stale re-runs (`staleTime: 0`), cached revisits (re-run once per lap by the `invalidate` step), `loaderDeps`-keyed caching, `router.invalidate()`, and `useLoaderData` selectors.                                                                                                                     |
-| `mount`                                  | Cold start: `createRouter` (route-tree processing) + first render + initial `router.load()` + unmount, with a fresh router per mount.                                                                                                                                                                                                |
-| `nested-params`                          | Deep nesting (8 dynamic levels): per-level `params.parse`/`stringify`, `beforeLoad` context accumulation across matches, and per-level `useParams`/`useRouteContext` subscriptions. Param values include characters requiring percent-encoding (as do `route-tree-scale`'s), so segment encode/decode paths run on every navigation. |
-| `preload`                                | Intent preloading from hover events, programmatic `router.preloadRoute`, deterministic preload cache behavior (`defaultPreloadStaleTime: 0`), and commit-time cache maintenance.                                                                                                                                                     |
-| `rewrites`                               | Composed client-side location rewrites: router `basepath` plus a locale input/output rewrite pair, running on every href build and location parse (the client analog of the SSR `rewrites` scenario).                                                                                                                                |
-| `route-tree-scale`                       | Route matching and link-target resolution on a wide (~40 route) tree mixing static, dynamic, prefixed-param, splat, pathless-layout, and route-group paths, with `autoCodeSplitting` enabled so navigations also resolve lazy route chunks.                                                                                          |
-| `search-params`                          | `validateSearch` execution, search middlewares (`retainSearchParams`/`stripSearchParams`), functional search updaters, structural sharing, and `useSearch` selector subscriptions.                                                                                                                                                   |
+| Scenario                                            | Client-side responsibility                                                                                                                                                                                                                                                                                                           |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `react/`, `solid/`, `vue/`, `svelte/` baseline apps | Mixed navigation loop: path params, search params, route context, and `useParams`/`useSearch`/`useLoaderData` selector subscriptions.                                                                                                                                                                                                |
+| `async-pipeline`                                    | The router's async pipeline via counted 0ms timer hops: async loaders (transition-held navigation), async `beforeLoad` context, and parallel nested async loaders. Component-level `Await`/Suspense is excluded: React 19 throttles Suspense reveals by ~300ms wall-clock, which is inherently non-deterministic to benchmark.       |
+| `control-flow`                                      | Loader-thrown `redirect` (including a 2-hop chain), `notFound()` with `notFoundComponent`, loader errors with `errorComponent`, and boundary reset on recovery navigation.                                                                                                                                                           |
+| `head`                                              | `HeadContent` per-navigation work: nested route `head()` evaluation, title/meta/link dedupe across matches, and head tag DOM updates during navigation.                                                                                                                                                                              |
+| `history`                                           | History push/replace/back/forward traversal, location masking, registered-but-never-blocking `useBlocker`, and `useCanGoBack`/`useLocation` subscriptions.                                                                                                                                                                           |
+| `hydration`                                         | Initial DOM hydration: execute the SSR payload, restore `beforeLoad` context and loader data, and hydrate 192 ordinary and eight hash-sensitive Links through their follow-up effects in React and Solid.                                                                                                                            |
+| `links`                                             | Per-navigation cost of ~200 mounted `<Link>`s: link prop building, active-state recompute across `activeOptions` variants, `activeProps` swaps, and `useMatchRoute` probes (the `MatchRoute` component is avoided: vue-router's implementation leaks one subscription per render).                                                   |
+| `loaders`                                           | Client loader dispatch: always-stale re-runs (`staleTime: 0`), cached revisits (re-run once per lap by the `invalidate` step), `loaderDeps`-keyed caching, `router.invalidate()`, and `useLoaderData` selectors.                                                                                                                     |
+| `mount`                                             | Cold start: `createRouter` (route-tree processing) + first render + initial `router.load()` + unmount, with a fresh router per mount.                                                                                                                                                                                                |
+| `nested-params`                                     | Deep nesting (8 dynamic levels): per-level `params.parse`/`stringify`, `beforeLoad` context accumulation across matches, and per-level `useParams`/`useRouteContext` subscriptions. Param values include characters requiring percent-encoding (as do `route-tree-scale`'s), so segment encode/decode paths run on every navigation. |
+| `preload`                                           | Intent preloading from hover events, programmatic `router.preloadRoute`, deterministic preload cache behavior (`defaultPreloadStaleTime: 0`), and commit-time cache maintenance.                                                                                                                                                     |
+| `rewrites`                                          | Composed client-side location rewrites: router `basepath` plus a locale input/output rewrite pair, running on every href build and location parse (the client analog of the SSR `rewrites` scenario).                                                                                                                                |
+| `route-tree-scale`                                  | Route matching and link-target resolution on a wide (~40 route) tree mixing static, dynamic, prefixed-param, splat, pathless-layout, and route-group paths, with `autoCodeSplitting` enabled so navigations also resolve lazy route chunks.                                                                                          |
+| `search-params`                                     | `validateSearch` execution, search middlewares (`retainSearchParams`/`stripSearchParams`), functional search updaters, structural sharing, and `useSearch` selector subscriptions.                                                                                                                                                   |
 
 ## Conventions
 
@@ -95,6 +101,7 @@ Run framework-specific benchmarks (baseline + all scenarios):
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:perf:react --outputStyle=stream --skipRemoteCache
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:perf:solid --outputStyle=stream --skipRemoteCache
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:perf:vue --outputStyle=stream --skipRemoteCache
+CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:perf:svelte --outputStyle=stream --skipRemoteCache
 ```
 
 Run a single scenario app manually (after building it through Nx):
@@ -111,6 +118,7 @@ Run framework-specific flame benchmarks (10 second loop, profiled with `@platfor
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:flame:react --outputStyle=stream --skipRemoteCache
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:flame:solid --outputStyle=stream --skipRemoteCache
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:flame:vue --outputStyle=stream --skipRemoteCache
+CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav:test:flame:svelte --outputStyle=stream --skipRemoteCache
 # scenarios
 CI=1 NX_DAEMON=false pnpm nx run @benchmarks/client-nav-<scenario>-<framework>:test:flame --outputStyle=stream --skipRemoteCache
 ```

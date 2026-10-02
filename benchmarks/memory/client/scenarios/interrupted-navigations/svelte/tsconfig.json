@@ -1,0 +1,16 @@
+{
+  "extends": "../../../../../../tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "types": ["node", "svelte", "vite/client", "vitest/globals"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "memory.bench.ts",
+    "memory.flame.ts",
+    "setup.ts",
+    "vite.config.ts",
+    "../../../bench-utils.ts",
+    "../../../vitest.setup.ts"
+  ]
+}

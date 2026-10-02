@@ -5,8 +5,10 @@ This workspace contains deterministic bundle-size fixtures for:
 - `@tanstack/react-router`
 - `@tanstack/solid-router`
 - `@tanstack/vue-router`
+- `@tanstack/svelte-router`
 - `@tanstack/react-start`
 - `@tanstack/solid-start`
+- `@tanstack/svelte-start`
 
 Each package has `minimal` and `full` scenarios:
 

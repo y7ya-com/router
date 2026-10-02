@@ -10,15 +10,15 @@ flags phantom regressions on every PR until the next run lands. (Falling back
 across a docs-only commit is safe: the previous run's benchmark-relevant code
 is identical.) Two separate benchmarks:
 
-- `server/` (`@benchmarks/memory-server`) — React/Solid/Vue Start apps, requests against
+- `server/` (`@benchmarks/memory-server`) — React/Solid/Vue/Svelte Start apps, requests against
   the built server handler (`handler.fetch`), Node environment.
-- `client/` (`@benchmarks/memory-client`) — router-only React/Solid/Vue apps in jsdom.
+- `client/` (`@benchmarks/memory-client`) — router-only React/Solid/Vue/Svelte apps in jsdom.
 
 These deliberately do **not** reuse the CPU scenarios in `benchmarks/ssr` and
 `benchmarks/client-nav`: memory benches need their own iteration counts,
 payload sizes, and route shapes, and tuning those must never shift the CPU
-baselines. Each scenario keeps a framework level (`react/`, `solid/`, `vue/`)
-so framework ports can be added without renames.
+baselines. Each scenario keeps a framework level (`react/`, `solid/`, `vue/`,
+`svelte/`) so framework ports can be added without renames.
 
 ## Layout
 
@@ -149,12 +149,15 @@ benchmark-specific V8 settings; compare identical harness versions.
   uses counted zero-delay timer hops to stage work. Timers still depend on the
   event loop, so validate repeatability on CI instead of assuming deterministic
   ordering from a zero delay alone.
+- Svelte renders each document in one pass. `<Await>` renders nothing on the
+  server, so Svelte `aborted-requests` and `streaming-peak` stream deferred data
+  only through the router's dehydration payload, not as rendered HTML.
 - Sanity assertions run once at module load and throw on wrong
   status/markers, so a bench can never silently measure the wrong thing.
 - Server requests follow `benchmarks/ssr` conventions: document GETs send
   `accept: text/html`, server-fn requests send `sec-fetch-site: same-origin`
   with bodies precomputed at module level.
-- Client apps export `mountTestApp` from `app.tsx`; benches import the built
+- Client apps export `mountTestApp` from `app.tsx` (`app.ts` for Svelte); benches import the built
   `dist/app.js`; navigations use `replace: true`; unmount does full teardown
   (framework root, `__TSR_ROUTER__`, `history.destroy()`); large loader payloads
   are never rendered into the DOM.
@@ -169,9 +172,11 @@ scenarios:
 pnpm nx run @benchmarks/memory-server:test:perf:react --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-server:test:perf:solid --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-server:test:perf:vue --outputStyle=stream --skipRemoteCache
+pnpm nx run @benchmarks/memory-server:test:perf:svelte --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-client:test:perf:react --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-client:test:perf:solid --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-client:test:perf:vue --outputStyle=stream --skipRemoteCache
+pnpm nx run @benchmarks/memory-client:test:perf:svelte --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-server:test:types --outputStyle=stream --skipRemoteCache
 pnpm nx run @benchmarks/memory-client:test:types --outputStyle=stream --skipRemoteCache
 ```
@@ -193,6 +198,8 @@ pnpm benchmark:memory:server:flame:solid
 pnpm benchmark:memory:client:flame:solid
 pnpm benchmark:memory:server:flame:vue
 pnpm benchmark:memory:client:flame:vue
+pnpm nx run @benchmarks/memory-server:test:flame:svelte --parallel=1
+pnpm nx run @benchmarks/memory-client:test:flame:svelte --parallel=1
 ```
 
 To profile one scenario, run its `test:flame` target directly:
@@ -237,6 +244,8 @@ WITH_INSTRUMENTATION=1 codspeed run --mode memory -- pnpm nx run @benchmarks/mem
 WITH_INSTRUMENTATION=1 codspeed run --mode memory -- pnpm nx run @benchmarks/memory-client:test:perf:react
 WITH_INSTRUMENTATION=1 codspeed run --mode memory -- pnpm nx run @benchmarks/memory-client:test:perf:solid
 WITH_INSTRUMENTATION=1 codspeed run --mode memory -- pnpm nx run @benchmarks/memory-client:test:perf:vue
+WITH_INSTRUMENTATION=1 codspeed run --mode memory -- pnpm nx run @benchmarks/memory-server:test:perf:svelte
+WITH_INSTRUMENTATION=1 codspeed run --mode memory -- pnpm nx run @benchmarks/memory-client:test:perf:svelte
 ```
 
 Run the benchmark workflow on an experiment branch:

@@ -7,15 +7,19 @@
     "@tanstack/react-start": "workspace:^",
     "@tanstack/solid-router": "workspace:^",
     "@tanstack/solid-start": "workspace:^",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-start": "workspace:^",
     "@tanstack/vue-router": "workspace:^",
     "@tanstack/vue-start": "workspace:^",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "solid-js": "^1.9.10",
+    "svelte": "^5.0.0",
     "vue": "^3.5.16"
   },
   "devDependencies": {
     "@codspeed/vitest-plugin": "^5.7.1",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.1.5",
     "@types/react": "catalog:",
@@ -107,13 +111,40 @@
           }
         ]
       },
+      "build:svelte": {
+        "executor": "nx:noop",
+        "cache": false,
+        "dependsOn": [
+          {
+            "projects": [
+              "@benchmarks/ssr-svelte",
+              "@benchmarks/ssr-assets-svelte",
+              "@benchmarks/ssr-before-load-svelte",
+              "@benchmarks/ssr-control-flow-svelte",
+              "@benchmarks/ssr-global-middleware-svelte",
+              "@benchmarks/ssr-head-svelte",
+              "@benchmarks/ssr-loaders-svelte",
+              "@benchmarks/ssr-rewrites-svelte",
+              "@benchmarks/ssr-serialization-svelte",
+              "@benchmarks/ssr-selective-ssr-svelte",
+              "@benchmarks/ssr-server-fn-transport-svelte",
+              "@benchmarks/ssr-server-fns-svelte",
+              "@benchmarks/ssr-server-routes-svelte",
+              "@benchmarks/ssr-server-routes-middleware-svelte",
+              "@benchmarks/ssr-streaming-svelte"
+            ],
+            "target": "build:ssr"
+          }
+        ]
+      },
       "test:perf": {
         "executor": "nx:run-commands",
         "cache": false,
         "dependsOn": [
           "build:react",
           "build:solid",
-          "build:vue"
+          "build:vue",
+          "build:svelte"
         ],
         "options": {
           "command": "NODE_ENV=production vitest bench",
@@ -157,6 +188,17 @@
         ],
         "options": {
           "command": "NODE_ENV=production vitest bench --config ./vitest.vue.config.ts",
+          "cwd": "benchmarks/ssr"
+        }
+      },
+      "test:perf:svelte": {
+        "executor": "nx:run-commands",
+        "cache": false,
+        "dependsOn": [
+          "build:svelte"
+        ],
+        "options": {
+          "command": "NODE_ENV=production vitest bench --config ./vitest.svelte.config.ts",
           "cwd": "benchmarks/ssr"
         }
       },
@@ -213,7 +255,22 @@
               "@benchmarks/ssr-server-fns-vue",
               "@benchmarks/ssr-server-routes-vue",
               "@benchmarks/ssr-server-routes-middleware-vue",
-              "@benchmarks/ssr-streaming-vue"
+              "@benchmarks/ssr-streaming-vue",
+              "@benchmarks/ssr-svelte",
+              "@benchmarks/ssr-assets-svelte",
+              "@benchmarks/ssr-before-load-svelte",
+              "@benchmarks/ssr-control-flow-svelte",
+              "@benchmarks/ssr-global-middleware-svelte",
+              "@benchmarks/ssr-head-svelte",
+              "@benchmarks/ssr-loaders-svelte",
+              "@benchmarks/ssr-rewrites-svelte",
+              "@benchmarks/ssr-serialization-svelte",
+              "@benchmarks/ssr-selective-ssr-svelte",
+              "@benchmarks/ssr-server-fn-transport-svelte",
+              "@benchmarks/ssr-server-fns-svelte",
+              "@benchmarks/ssr-server-routes-svelte",
+              "@benchmarks/ssr-server-routes-middleware-svelte",
+              "@benchmarks/ssr-streaming-svelte"
             ],
             "target": "test:types:ssr"
           }

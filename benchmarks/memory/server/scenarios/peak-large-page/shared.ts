@@ -3,7 +3,7 @@ import type { StartRequestHandler } from '#memory-server/bench-utils'
 
 export type { StartRequestHandler }
 
-type Framework = 'react' | 'solid' | 'vue'
+type Framework = 'react' | 'solid' | 'vue' | 'svelte'
 
 const benchmarkSeed = 0x5eed_0005
 const peakLargePageIterations = 1

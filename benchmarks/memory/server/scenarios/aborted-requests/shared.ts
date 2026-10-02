@@ -3,7 +3,7 @@ import type { StartRequestHandler } from '#memory-server/bench-utils'
 
 export type { StartRequestHandler }
 
-type Framework = 'react' | 'solid' | 'vue'
+type Framework = 'react' | 'solid' | 'vue' | 'svelte'
 
 type AbortedRequestReadMode = 'first-chunk' | 'shell-before-deferred'
 const abortedRequestIterations = 40
@@ -21,6 +21,7 @@ const abortedRequestModes: Record<Framework, AbortedRequestReadMode> = {
   react: 'first-chunk',
   solid: 'first-chunk',
   vue: 'shell-before-deferred',
+  svelte: 'shell-before-deferred',
 }
 
 const documentRequestInit = {

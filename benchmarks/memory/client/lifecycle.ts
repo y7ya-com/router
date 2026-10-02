@@ -1,4 +1,4 @@
-export type Framework = 'react' | 'solid' | 'vue'
+export type Framework = 'react' | 'solid' | 'vue' | 'svelte'
 
 export type MountedApp = {
   router: unknown
@@ -11,6 +11,7 @@ const frameworkNames = {
   react: 'React',
   solid: 'Solid',
   vue: 'Vue',
+  svelte: 'Svelte',
 } satisfies Record<Framework, string>
 
 export function noop() {}

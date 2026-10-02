@@ -60,6 +60,20 @@ const SCENARIOS = [
     case: 'full',
   },
   {
+    id: 'svelte-router.minimal',
+    dir: 'svelte-router-minimal',
+    framework: 'svelte',
+    packageName: '@tanstack/svelte-router',
+    case: 'minimal',
+  },
+  {
+    id: 'svelte-router.full',
+    dir: 'svelte-router-full',
+    framework: 'svelte',
+    packageName: '@tanstack/svelte-router',
+    case: 'full',
+  },
+  {
     id: 'react-start.minimal',
     dir: 'react-start-minimal',
     framework: 'react',
@@ -149,6 +163,20 @@ const SCENARIOS = [
     dir: 'vue-start-full',
     framework: 'vue',
     packageName: '@tanstack/vue-start',
+    case: 'full',
+  },
+  {
+    id: 'svelte-start.minimal',
+    dir: 'svelte-start-minimal',
+    framework: 'svelte',
+    packageName: '@tanstack/svelte-start',
+    case: 'minimal',
+  },
+  {
+    id: 'svelte-start.full',
+    dir: 'svelte-start-full',
+    framework: 'svelte',
+    packageName: '@tanstack/svelte-start',
     case: 'full',
   },
 ]

@@ -7,7 +7,7 @@ import type { StartRequestHandler } from '#memory-server/bench-utils'
 
 export type { StartRequestHandler }
 
-type Framework = 'react' | 'solid' | 'vue'
+type Framework = 'react' | 'solid' | 'vue' | 'svelte'
 
 const errorPathsIterations = 18
 const redirectSeed = 0xdecafbad
