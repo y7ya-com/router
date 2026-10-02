@@ -1,0 +1,30 @@
+{
+  "name": "tanstack-router-e2e-svelte-basic-scroll-restoration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "dev:e2e": "vite",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "vite",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "@tanstack/svelte-virtual": "^3.13.0",
+    "redaxios": "catalog:",
+    "svelte": "^5.0.0",
+    "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "vite": "^8.0.14",
+    "svelte-check": "^4.0.0",
+    "typescript": "~5.9.0"
+  }
+}

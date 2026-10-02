@@ -1,0 +1,32 @@
+{
+  "name": "tanstack-router-e2e-svelte-basepath-file-based",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "dev:e2e": "vite",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "vite",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/router-plugin": "workspace:^",
+    "@tanstack/svelte-query": "^6.1.48",
+    "@tanstack/svelte-query-devtools": "^6.1.48",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "redaxios": "catalog:",
+    "tailwindcss": "^4.2.2",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "typescript": "~5.8.3",
+    "vite": "^8.0.14",
+    "svelte-check": "^4.0.0"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "tanstack-svelte-start-e2e-serialization-adapters",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "dev:e2e": "vite dev",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "pnpx srvx --prod -s ../client dist/server/server.js",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "@tanstack/svelte-start": "workspace:^",
+    "svelte": "^5.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "srvx": "^0.11.9",
+    "tailwindcss": "^4.2.2",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite": "^8.0.14",
+    "svelte-check": "^4.0.0"
+  }
+}

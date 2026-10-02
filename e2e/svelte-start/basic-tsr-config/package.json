@@ -1,0 +1,30 @@
+{
+  "name": "tanstack-svelte-start-e2e-basic-tsr-config",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "dev:e2e": "vite dev",
+    "build": "rimraf ./count.txt && vite build && svelte-check --tsconfig ./tsconfig.json",
+    "start": "pnpx srvx --prod -s ../client dist/server/server.js",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "@tanstack/svelte-start": "workspace:^",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@types/node": "^22.10.2",
+    "srvx": "^0.11.9",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "vite": "^8.0.14",
+    "rimraf": "catalog:",
+    "svelte-check": "^4.0.0"
+  }
+}

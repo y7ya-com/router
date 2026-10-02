@@ -1,0 +1,32 @@
+{
+  "name": "tanstack-svelte-router-e2e-sentry-integration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "dev:e2e": "vite",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "vite",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@sentry/svelte": "^10.32.0",
+    "@sentry/tracing": "^7.120.4",
+    "@sentry/vite-plugin": "^4.6.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "redaxios": "catalog:",
+    "tailwindcss": "^4.2.2",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "typescript": "~5.8.3",
+    "vite": "^8.0.14",
+    "svelte-check": "^4.0.0"
+  }
+}

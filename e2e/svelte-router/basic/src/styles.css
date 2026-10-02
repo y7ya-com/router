@@ -1,0 +1,58 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+}
+.p-2 {
+  padding: 0.5rem;
+}
+.flex {
+  display: flex;
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.border-b {
+  border-bottom: 1px solid #e5e7eb;
+}
+.font-bold {
+  font-weight: 700;
+}
+.underline {
+  text-decoration: underline;
+}
+.text-lg {
+  font-size: 1.125rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+}
+.items-center {
+  align-items: center;
+}
+.list-disc {
+  list-style: disc;
+}
+.pl-4 {
+  padding-left: 1rem;
+}
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.grid {
+  display: grid;
+}
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+.opacity-20 {
+  opacity: 0.2;
+}

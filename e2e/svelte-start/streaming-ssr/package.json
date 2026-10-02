@@ -1,0 +1,60 @@
+{
+  "name": "tanstack-svelte-start-e2e-streaming-ssr",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "dev:e2e": "vite dev",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "start": "pnpx srvx --prod -s ../client dist/server/server.js",
+    "preview": "vite preview",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:preview": "MODE=preview playwright test preview-streaming.spec.ts --project=chromium"
+  },
+  "dependencies": {
+    "@tanstack/svelte-query": "^6.1.48",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-ssr-query": "workspace:^",
+    "@tanstack/svelte-start": "workspace:^",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@types/node": "^22.10.2",
+    "srvx": "^0.11.9",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite": "^8.0.14",
+    "svelte-check": "^4.0.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "inputs": [
+          "buildProduction",
+          "^buildProduction",
+          "dependentTaskOutputs",
+          "streamingSsrTests"
+        ]
+      },
+      "test:e2e": {
+        "inputs": [
+          "default",
+          "^production",
+          "dependentTaskOutputs",
+          "streamingSsrTests"
+        ]
+      },
+      "test:e2e:preview": {
+        "inputs": [
+          "default",
+          "^production",
+          "streamingSsrTests"
+        ]
+      }
+    }
+  }
+}

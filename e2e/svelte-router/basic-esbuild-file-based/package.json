@@ -1,0 +1,33 @@
+{
+  "name": "tanstack-router-e2e-svelte-basic-esbuild-file-based",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/esbuild.run.js dev --port 5601",
+    "build": "node src/esbuild.run.js build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "node src/esbuild.run.js preview",
+    "start": "pnpm dev",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@tanstack/router-plugin": "workspace:^",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "postcss": "^8.5.1",
+    "redaxios": "catalog:",
+    "svelte": "^5.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@playwright/test": "^1.61.0",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "esbuild": "^0.27.4",
+    "esbuild-svelte": "^0.9.5",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "svelte-check": "^4.0.0"
+  }
+}

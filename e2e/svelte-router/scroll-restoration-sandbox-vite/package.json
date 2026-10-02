@@ -1,0 +1,44 @@
+{
+  "name": "tanstack-router-e2e-svelte-scroll-restoration-sandbox-vite",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "dev:hash": "VITE_APP_HISTORY=hash vite --port 3000",
+    "dev:e2e": "vite",
+    "build": "vite build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "start": "vite",
+    "test:e2e:browser": "VITE_APP_HISTORY=browser playwright test --config=playwright.browser.config.ts --project=chromium",
+    "test:e2e:hash": "VITE_APP_HISTORY=hash playwright test --config=playwright.hash.config.ts --project=chromium",
+    "test:e2e": "pnpm run test:e2e:browser && pnpm run test:e2e:hash"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/router-plugin": "workspace:^",
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "redaxios": "catalog:",
+    "tailwindcss": "^4.2.2",
+    "svelte": "^5.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "typescript": "~5.8.3",
+    "vite": "^8.0.14",
+    "svelte-check": "^4.0.0"
+  },
+  "nx": {
+    "targets": {
+      "test:e2e": {
+        "outputs": [
+          "...",
+          "{projectRoot}/dist-hash"
+        ]
+      }
+    }
+  }
+}

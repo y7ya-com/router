@@ -1,0 +1,32 @@
+{
+  "name": "tanstack-router-e2e-svelte-rspack-basic-virtual-named-export-config-file-based",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "rsbuild dev --port 3000",
+    "build": "rsbuild build && svelte-check --tsconfig ./tsconfig.json",
+    "preview": "rsbuild preview",
+    "start": "rsbuild preview",
+    "test:e2e": "playwright test --project=chromium"
+  },
+  "dependencies": {
+    "@tanstack/svelte-router": "workspace:^",
+    "@tanstack/svelte-router-devtools": "workspace:^",
+    "redaxios": "catalog:",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@rsbuild/core": "^2.1.0",
+    "@rsbuild/plugin-svelte": "^2.0.1",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tanstack/router-e2e-utils": "workspace:^",
+    "@tanstack/router-plugin": "workspace:^",
+    "@tanstack/virtual-file-routes": "workspace:^",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^4.2.2",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "svelte-check": "^4.0.0"
+  }
+}

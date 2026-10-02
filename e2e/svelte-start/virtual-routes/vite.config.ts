@@ -1,0 +1,20 @@
+import { defineConfig } from 'vite'
+import { tanstackStart } from '@tanstack/svelte-start/plugin/vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  resolve: { tsconfigPaths: true },
+  server: {
+    port: 3000,
+  },
+  plugins: [
+    tailwindcss(),
+    tanstackStart({
+      router: {
+        virtualRouteConfig: './routes.ts',
+      },
+    }),
+    svelte(),
+  ],
+})
